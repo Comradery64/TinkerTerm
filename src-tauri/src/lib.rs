@@ -4,6 +4,8 @@ use std::sync::Mutex;
 use tauri::ipc::Channel;
 use tauri::State;
 
+pub mod tts;
+
 struct Pty {
     master: Box<dyn MasterPty + Send>,
     writer: Box<dyn Write + Send>,
@@ -143,12 +145,13 @@ fn traffic_lights(window: tauri::Window, visible: bool, duration: f64) {
 pub fn run() {
     tauri::Builder::default()
         .manage(PtyState::default())
+        .manage(tts::TtsState::default())
         .setup(|app| {
             // Default menu gives Cmd+C/V/X/A and Quit on macOS.
             app.set_menu(tauri::menu::Menu::default(app.handle())?)?;
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![spawn, write, resize, kill, speak, stickers_load, stickers_save, traffic_lights])
+        .invoke_handler(tauri::generate_handler![spawn, write, resize, kill, speak, stickers_load, stickers_save, traffic_lights, tts::tts, tts::tts_warm])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
