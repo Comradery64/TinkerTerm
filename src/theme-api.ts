@@ -24,7 +24,7 @@ import type { ITheme } from "@xterm/xterm";
 export type Mood = "happy" | "think" | "dance" | "wave" | "wow";
 
 export interface Sounds {
-  key(ch: string): void; back(): void; yay(): void; hmm(): void; sparkle(): void; boing(): void;
+  key(ch: string): void; back(): void; enter(): void; yay(): void; hmm(): void; sparkle(): void; boing(): void;
 }
 
 /** The theme's voice in text. Anything omitted falls back to the Crayon Box wording. */
@@ -34,6 +34,7 @@ export interface Words {
   prompt(name: string): string;                // the prompt, ANSI ok, e.g. "  ★ "
   unknown(raw: string, idea: string): string;  // reply to a word the shell doesn't know ("\n" for new line)
   helpTitle: string;
+  help: [string, string][];                   // [command, what it does] rows for `help`
   tada(label: string): string;                 // after switching to this theme
 }
 
@@ -51,6 +52,7 @@ export interface ThemeDef {
   palette: string[];      // 5-8 output colors, all readable on this theme's background
   chrome: string;         // HTML for #chrome
   sidekick?: string;      // HTML/SVG for #sidekick; omit for no mascot
+  bigPictures?: boolean;  // `cat` etc. flash a giant emoji (default true); older themes may turn it off
   sounds?: Partial<Sounds>;
   words?: Partial<Words>;
   /** Kokoro voice id (e.g. "af_heart"), speed 1 = normal. chatty: read every answer aloud, or only `say`. */

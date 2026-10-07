@@ -42,6 +42,7 @@ export function noise(at: number, len: number, vol = 0.15, filterHz = 2000) {
 /** Crayon Box sounds; a theme overrides any of them. */
 const base: Sounds = {
   key(ch: string) { if (prefs.sound) tone(note(PENTA[ch.charCodeAt(0) % PENTA.length]), 0, 0.15); },
+  enter() {},
   back() { if (prefs.sound) { tone(note(4), 0, 0.08, "sine"); tone(note(0), 0.06, 0.12, "sine"); } },
   yay() { if (prefs.sound) [0, 4, 7, 12].forEach((s, i) => tone(note(s), i * 0.08, 0.25)); },
   hmm() { if (prefs.sound) { tone(note(2), 0, 0.18, "sine"); tone(note(-1), 0.16, 0.3, "sine"); } },

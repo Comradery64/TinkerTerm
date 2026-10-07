@@ -20,6 +20,11 @@ const BASE_WORDS: Words = {
   prompt: (name) => `  ${name ? rainbow(name) + " " : ""}${rgb(col(1))}★ ${RESET}`,
   unknown: (raw, idea) => `Hmm, I don't know "${raw}" yet! 🤔\nTry typing: ${idea}`,
   helpTitle: "Things to try:",
+  help: [["cat, dog, rocket…", "see a picture and hear it"], ["say hello", "I'll say it big!"],
+    ["2 + 3", "do math"], ["count 10", "count with me"], ["color pink", "change your crayon"],
+    ["name Sam", "tell me your name"], ["party", "confetti!"], ["dance", "watch me dance"],
+    ["joke", "a silly joke"], ["theme", "change the look"], ["sticker cat", "add a sticker"],
+    ["roll", "roll a dice"], ["abc", "the alphabet"], ["clear", "clean the page"]],
   tada: (label) => `Ta-da! ${label}! ✨`,
 };
 const words = (): Words => ({ ...BASE_WORDS, ...active().words });
@@ -132,7 +137,7 @@ export class ToyShell {
     const raw = this.line.trim();
     this.line = ""; this.back = 0;
     this.out(`${RESET}\r\n`);
-    if (raw) { this.history.push(raw); emit("tt:enter", { raw }); this.run(raw); }
+    if (raw) { this.history.push(raw); sfx.enter(); emit("tt:enter", { raw }); this.run(raw); }
     this.prompt();
   }
 
@@ -154,10 +159,7 @@ export class ToyShell {
     switch (word) {
       case "help": case "?": case "what":
         this.out(`  ${rainbow(words().helpTitle)}\r\n`);
-        for (const [c, d] of [["cat, dog, rocket…", "see a picture and hear it"], ["say hello", "I'll say it big!"],
-          ["2 + 3", "do math"], ["count 10", "count with me"], ["color pink", "change your crayon"],
-          ["name Sam", "tell me your name"], ["party", "confetti!"], ["dance", "watch me dance"],
-          ["joke", "a silly joke"], ["theme", "change the look"], ["sticker cat", "add a sticker"], ["roll", "roll a dice"], ["abc", "the alphabet"], ["clear", "clean the page"]])
+        for (const [c, d] of words().help)
           this.out(`   ${rgb(col(6))}${c.padEnd(18)}${RESET} ${d}\r\n`);
         this.out("\r\n");
         if (active().voice.chatty) speak("Here are some things to try!");
@@ -250,7 +252,7 @@ export class ToyShell {
     emit("tt:result", { kind: thing ? "thing" : "unknown", cmd: word });
     if (thing) {
       sfx.yay(); mascot("wow");
-      bigWord(thing[0]);
+      if (active().bigPictures !== false) bigWord(thing[0]);
       return this.reply(`${thing[0]}  ${thing[1]}`, pick(palette()), thing[1]);
     }
 
