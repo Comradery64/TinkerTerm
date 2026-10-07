@@ -32,9 +32,9 @@ export function openParent(realMode: boolean, changed: (what: Changed) => void, 
         <h2>Grown-up settings</h2>
         <label><input type="checkbox" name="sound" ${prefs.sound ? "checked" : ""}> Sounds</label>
         <label><input type="checkbox" name="speech" ${prefs.speech ? "checked" : ""}> Read answers aloud</label>
-        <label><input type="checkbox" name="wobble" ${prefs.wobble ? "checked" : ""}> Crayon-edge text</label>
+        <label><input type="checkbox" name="wobble" ${prefs.wobble ? "checked" : ""}> Crayon-edge text (Crayon Box)</label>
         <label>Look <select name="theme">${THEMES.map((t) =>
-          `<option value="${t.key}" ${t.key === prefs.theme ? "selected" : ""}>${t.label} (ages ${t.ages})</option>`).join("")}</select></label>
+          `<option value="${t.key}" ${t.key === prefs.theme ? "selected" : ""}>${t.label} (${t.ages})</option>`).join("")}</select></label>
         <label>Text size <input type="range" name="fontSize" min="16" max="44" value="${prefs.fontSize}"></label>
         <label>Kid's name <input name="name" value="${prefs.name.replace(/"/g, "&quot;")}" maxlength="16"></label>
         <hr>

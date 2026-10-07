@@ -11,6 +11,7 @@ import { burst, nap, sfx, mascot, say } from "./fx";
 import { remapSgr } from "./sgr";
 import { overlayScrollbar } from "./scrollbar";
 import { themeFor } from "./themes";
+import { setActive } from "./theme-api";
 import { restoreStickers, runSticker, toggleTray } from "./stickers";
 
 const TAURI = "__TAURI_INTERNALS__" in window;
@@ -33,7 +34,8 @@ const el = document.getElementById("term")!;
 const scrollbar = overlayScrollbar(el);
 
 let mode: "kid" | "real" = "kid";
-const toy = new ToyShell(term, grownUp, setTheme);
+const toy = new ToyShell(term, grownUp, (key) => setTheme(key, true));
+let unmount: (() => void) | void;
 let ptyReady = false;
 
 async function main() {
@@ -93,23 +95,36 @@ function applyLook() {
   fit.fit();
 }
 
-/** Switch look: CSS decorates from data-theme; xterm gets the font and palette. */
-export async function setTheme(key: string) {
+/**
+ * Switch theme: its CSS decorates from data-theme, its markup fills #chrome and #sidekick,
+ * xterm gets its font and colors. fresh: a kid switched mid-session, so start a clean page.
+ */
+async function setTheme(key: string, fresh = false) {
   const t = themeFor(key);
+  if (unmount) unmount();
+  setActive(t);
+  if (fresh) prefs.fontSize = t.fontSize ?? 26;
   prefs.theme = t.key; savePrefs();
   document.body.dataset.theme = t.key;
-  // both faces before xterm measures its cell, or it measures a fallback font
-  const family = t.font.split(",")[0];
+  document.getElementById("chrome")!.innerHTML = t.chrome;
+  document.getElementById("sidekick")!.innerHTML = t.sidekick ?? "";
+  // every face before xterm measures its cell, or it measures a fallback font
+  const family = t.fontFamily.split(",")[0];
   await Promise.all(["", "bold "].map((w) => document.fonts.load(`${w}20px ${family}`).catch(() => [])));
-  term.options.fontFamily = t.font;
-  term.options.theme = t.colors;
+  term.options.fontFamily = t.fontFamily;
+  term.options.theme = t.xterm;
+  term.options.lineHeight = t.lineHeight ?? 1.35;
+  term.options.cursorStyle = t.cursorStyle ?? "block";
+  term.options.fontSize = prefs.fontSize;
+  unmount = t.mount?.(document.getElementById("chrome")!);
   fit.fit();
+  if (fresh && mode === "kid") { term.reset(); toy.start(); }
 }
 
 function grownUp() {
   openParent(mode === "real", (what: Changed) => {
     if (what === "mode") switchMode();
-    else if (what === "theme") setTheme(prefs.theme);
+    else if (what === "theme") setTheme(prefs.theme, true);
     else applyLook();
   }, () => term.focus());
 }

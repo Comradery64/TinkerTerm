@@ -1,8 +1,10 @@
 /** The fun layer: synthesized sounds, the voice, sparkles, confetti, giant words, and Tinker the mascot. */
-import { invoke } from "@tauri-apps/api/core";
 import { prefs } from "./prefs";
+import { active, type Sounds } from "./theme-api";
+import { say as voiceSay } from "./voice";
 
-export const CRAYONS = ["#ff4d4d", "#ff9f1c", "#ffd23f", "#3ec300", "#1fb5ff", "#7b5cff", "#ff5cc8"];
+/** The active theme's output colors. */
+export const palette = () => active().palette;
 export const pick = <T>(a: readonly T[]): T => a[Math.floor(Math.random() * a.length)];
 const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -10,7 +12,7 @@ const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 let ctx: AudioContext | undefined;
 const PENTA = [0, 2, 4, 7, 9, 12, 14, 16];   // pentatonic: any run of keys sounds like a tune
 
-function tone(freq: number, at: number, len: number, type: OscillatorType = "triangle", vol = 0.18) {
+export function tone(freq: number, at: number, len: number, type: OscillatorType = "triangle", vol = 0.18) {
   ctx ??= new AudioContext();
   const t = ctx.currentTime + at;
   const o = ctx.createOscillator(), g = ctx.createGain();
@@ -22,9 +24,23 @@ function tone(freq: number, at: number, len: number, type: OscillatorType = "tri
   o.connect(g).connect(ctx.destination);
   o.start(t); o.stop(t + len + 0.02);
 }
-const note = (semi: number) => 523.25 * 2 ** (semi / 12);   // from C5
+export const note = (semi: number) => 523.25 * 2 ** (semi / 12);   // from C5
 
-export const sfx = {
+/** White-noise burst: clicks, snaps, whooshes. */
+export function noise(at: number, len: number, vol = 0.15, filterHz = 2000) {
+  ctx ??= new AudioContext();
+  const t = ctx.currentTime + at;
+  const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * len), ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+  src.buffer = buf; f.type = "bandpass"; f.frequency.value = filterHz;
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + len);
+  src.connect(f).connect(g).connect(ctx.destination); src.start(t);
+}
+
+/** Crayon Box sounds; a theme overrides any of them. */
+const base: Sounds = {
   key(ch: string) { if (prefs.sound) tone(note(PENTA[ch.charCodeAt(0) % PENTA.length]), 0, 0.15); },
   back() { if (prefs.sound) { tone(note(4), 0, 0.08, "sine"); tone(note(0), 0.06, 0.12, "sine"); } },
   yay() { if (prefs.sound) [0, 4, 7, 12].forEach((s, i) => tone(note(s), i * 0.08, 0.25)); },
@@ -40,17 +56,16 @@ export const sfx = {
   },
 };
 
+/** Plays the active theme's sound, falling back to the base set. Muted when sound is off. */
+export const sfx: Sounds = Object.fromEntries((Object.keys(base) as (keyof Sounds)[]).map((k) =>
+  [k, (...a: [string]) => { if (prefs.sound) ((active().sounds?.[k] ?? base[k]) as (...x: [string]) => void)(...a); }])) as unknown as Sounds;
+
 // ---- voice ----
+/** Read text aloud in the theme's voice. */
 export function speak(text: string) {
   if (!prefs.speech) return;
-  const clean = text.replace(/\p{Extended_Pictographic}|️/gu, "").trim();
-  if (!clean) return;
-  if ("speechSynthesis" in window) {
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(clean);
-    u.rate = 0.9; u.pitch = 1.3;
-    speechSynthesis.speak(u);
-  } else if ("__TAURI_INTERNALS__" in window) invoke("speak", { text: clean });
+  const clean = text.replace(/\p{Extended_Pictographic}|\uFE0F/gu, "").trim();
+  if (clean) voiceSay(clean, active().voice);
 }
 
 // ---- particles ----
@@ -61,7 +76,7 @@ function particle(x: number, y: number, content: string, dx: number, dy: number,
   p.className = cls;
   p.textContent = content;
   p.style.left = `${x}px`; p.style.top = `${y}px`;
-  p.style.color = pick(CRAYONS);
+  p.style.color = pick(palette());
   layer().appendChild(p);
   p.animate([
     { transform: "translate(-50%,-50%) scale(0.4) rotate(0deg)", opacity: 1 },
@@ -95,7 +110,7 @@ export function bigWord(text: string) {
   [...text.slice(0, 24)].forEach((ch, i) => {
     const s = document.createElement("span");
     s.textContent = ch === " " ? " " : ch;
-    s.style.color = CRAYONS[i % CRAYONS.length];
+    s.style.color = palette()[i % palette().length];
     s.style.animationDelay = `${i * 60}ms`;
     box.appendChild(s);
   });

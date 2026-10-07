@@ -2,13 +2,27 @@
 import type { Terminal } from "@xterm/xterm";
 import { prefs, savePrefs } from "./prefs";
 import { THEMES } from "./themes";
+import { active, emit, type Words } from "./theme-api";
 import { addSticker, STICKERS } from "./stickers";
-import { sfx, speak, confetti, bigWord, mascot, say, pick, CRAYONS } from "./fx";
+import { sfx, speak, confetti, bigWord, mascot, say, pick, palette } from "./fx";
 
 const ESC = "\x1b[";
 const rgb = (hex: string) => `${ESC}38;2;${parseInt(hex.slice(1, 3), 16)};${parseInt(hex.slice(3, 5), 16)};${parseInt(hex.slice(5, 7), 16)}m`;
 const RESET = `${ESC}0m`;
-const rainbow = (s: string) => [...s].map((c, i) => rgb(CRAYONS[i % CRAYONS.length]) + c).join("") + RESET;
+const rainbow = (s: string) => [...s].map((c, i) => rgb(palette()[i % palette().length]) + c).join("") + RESET;
+/** Palette slot n, wrapping: themes have 5-8 colors. */
+const col = (n: number) => palette()[n % palette().length];
+
+/** Crayon Box wording; themes override any of it (ThemeDef.words). */
+const BASE_WORDS: Words = {
+  intro: () => [`${rainbow("Hi! I'm Tinker!")} 👋`, `Type a word and press ${rgb(col(3))}Enter${RESET}. Try ${rgb(col(6))}cat${RESET} or ${rgb(col(6))}help${RESET}!`],
+  greet: (name) => name ? `Hi ${name}! Let's play!` : "Hi! Let's play!",
+  prompt: (name) => `  ${name ? rainbow(name) + " " : ""}${rgb(col(1))}★ ${RESET}`,
+  unknown: (raw, idea) => `Hmm, I don't know "${raw}" yet! 🤔\nTry typing: ${idea}`,
+  helpTitle: "Things to try:",
+  tada: (label) => `Ta-da! ${label}! ✨`,
+};
+const words = (): Words => ({ ...BASE_WORDS, ...active().words });
 
 // a word on its own shows a picture and makes its noise
 const THINGS: Record<string, [string, string]> = {
@@ -60,28 +74,30 @@ function wrap(s: string, cols: number): string {
   }).join("\r\n");
 }
 
+const KNOWN = new Set(["help", "?", "what", "hi", "hello", "hey", "hiya", "bye", "goodbye", "night", "goodnight", "name", "say", "big",
+  "color", "colour", "crayon", "count", "abc", "alphabet", "party", "confetti", "yay", "hooray", "dance", "boogie", "joke", "roll", "dice",
+  "time", "clock", "clear", "clean", "theme", "look", "sticker", "stickers", "grownup", "parent"]);
+
 const IDEAS = ["cat", "say hello", "2 + 3", "party", "joke", "count 5", "color pink", "rocket", "dance", "roll"];
 
 export class ToyShell {
   private line = "";
   private history: string[] = [];
   private back = 0;
-  private ink = CRAYONS[4];
+  private ink = "";   // "" = the theme's own typing color
 
   constructor(private term: Terminal, private onGrownUp: () => void, private onTheme: (key: string) => void) {}
 
   start() {
-    this.out(`\r\n  ${rainbow("Hi! I'm Tinker!")} 👋\r\n`);
-    this.out(`  Type a word and press ${rgb("#3ec300")}Enter${RESET}. Try ${rgb("#ff5cc8")}cat${RESET} or ${rgb("#ff5cc8")}help${RESET}!\r\n\r\n`);
-    say(prefs.name ? `Hi ${prefs.name}! Let's play!` : "Hi! Let's play!");
+    this.out("\r\n" + words().intro(prefs.name).map((l) => `  ${l}${RESET}\r\n`).join("") + "\r\n");
+    say(words().greet(prefs.name));
     this.prompt();
   }
 
   private out(s: string) { this.term.write(wrap(s, this.term.cols)); }
 
   private prompt() {
-    const who = prefs.name ? rainbow(prefs.name) + " " : "";
-    this.out(`  ${who}${rgb("#ff9f1c")}★ ${RESET}${rgb(this.ink)}`);
+    this.out(words().prompt(prefs.name) + RESET + (this.ink ? rgb(this.ink) : ""));
   }
 
   /** Keystrokes from xterm. */
@@ -90,7 +106,7 @@ export class ToyShell {
     if (data === "\x7f" || data === "\b") {
       if (!this.line) return;
       this.line = [...this.line].slice(0, -1).join("");
-      sfx.back();
+      sfx.back(); emit("tt:back");
       return this.out("\b \b");
     }
     if (data === "\x1b[A" || data === "\x1b[B") return this.recall(data === "\x1b[A" ? 1 : -1);
@@ -99,7 +115,7 @@ export class ToyShell {
     const text = data.replace(/[\x00-\x1f\x7f]/g, "");
     if (!text || this.line.length + text.length > 60) return;
     this.line += text;
-    sfx.key(text);
+    sfx.key(text); emit("tt:key", { ch: text });
     this.out(text);
   }
 
@@ -116,14 +132,14 @@ export class ToyShell {
     const raw = this.line.trim();
     this.line = ""; this.back = 0;
     this.out(`${RESET}\r\n`);
-    if (raw) { this.history.push(raw); this.run(raw); }
+    if (raw) { this.history.push(raw); emit("tt:enter", { raw }); this.run(raw); }
     this.prompt();
   }
 
-  /** Print an answer, read it aloud, and let Tinker react. */
-  private reply(text: string, color = pick(CRAYONS), voice = text) {
+  /** Print an answer and, if the theme is chatty, read it aloud. */
+  private reply(text: string, color = pick(palette()), voice = text) {
     this.out(`  ${rgb(color)}${text.replace(/\n/g, "\r\n  ")}${RESET}\r\n\r\n`);
-    speak(voice);
+    if (active().voice.chatty) speak(voice);
   }
 
   private run(raw: string) {
@@ -134,16 +150,17 @@ export class ToyShell {
     const math = raw.replace(/[x×]/gi, "*").replace(/÷/g, "/").match(/^(\d{1,4})\s*([-+*/])\s*(\d{1,4})$/);
     if (math) return this.math(+math[1], math[2], +math[3]);
 
+    if (KNOWN.has(word)) emit("tt:result", { kind: "ok", cmd: word });
     switch (word) {
       case "help": case "?": case "what":
-        this.out(`  ${rainbow("Things to try:")}\r\n`);
+        this.out(`  ${rainbow(words().helpTitle)}\r\n`);
         for (const [c, d] of [["cat, dog, rocket…", "see a picture and hear it"], ["say hello", "I'll say it big!"],
           ["2 + 3", "do math"], ["count 10", "count with me"], ["color pink", "change your crayon"],
           ["name Sam", "tell me your name"], ["party", "confetti!"], ["dance", "watch me dance"],
           ["joke", "a silly joke"], ["theme", "change the look"], ["sticker cat", "add a sticker"], ["roll", "roll a dice"], ["abc", "the alphabet"], ["clear", "clean the page"]])
-          this.out(`   ${rgb("#ff5cc8")}${c.padEnd(18)}${RESET} ${d}\r\n`);
+          this.out(`   ${rgb(col(6))}${c.padEnd(18)}${RESET} ${d}\r\n`);
         this.out("\r\n");
-        speak("Here are some things to try!");
+        if (active().voice.chatty) speak("Here are some things to try!");
         return mascot("happy");
       case "hi": case "hello": case "hey": case "hiya":
         sfx.yay(); mascot("wave");
@@ -152,12 +169,12 @@ export class ToyShell {
         mascot("wave");
         return this.reply("Bye bye! See you soon! 👋💛");
       case "name":
-        if (!arg) return this.reply("What's your name? Type: name and then your name!", CRAYONS[5]);
+        if (!arg) return this.reply("What's your name? Type: name and then your name!", col(5));
         prefs.name = arg.slice(0, 16).replace(/^./, (c) => c.toUpperCase()); savePrefs();
         sfx.yay(); mascot("happy"); confetti(["★", "♥", "✿"]);
         return this.reply(`Nice to meet you, ${prefs.name}! 🌟`);
       case "say": case "big":
-        if (!arg) return this.reply("Say what? Try: say I love pizza", CRAYONS[5]);
+        if (!arg) return this.reply("Say what? Try: say I love pizza", col(5));
         bigWord(arg); mascot("wow"); speak(arg);
         this.out(`  ${rainbow(arg)}\r\n\r\n`);
         return;
@@ -174,7 +191,7 @@ export class ToyShell {
       case "count": {
         const n = Math.min(20, Math.max(1, parseInt(arg) || 10));
         const thing = pick(["🍎", "⭐", "🐟", "🎈", "🍪", "🌸"]);
-        for (let i = 1; i <= n; i++) this.out(`  ${rgb(CRAYONS[i % CRAYONS.length])}${String(i).padStart(2)} ${thing.repeat(i)}${RESET}\r\n`);
+        for (let i = 1; i <= n; i++) this.out(`  ${rgb(col(i))}${String(i).padStart(2)} ${thing.repeat(i)}${RESET}\r\n`);
         this.out("\r\n"); sfx.yay(); mascot("happy");
         speak(Array.from({ length: n }, (_, i) => i + 1).join(", ") + "! You did it!");
         return;
@@ -191,10 +208,10 @@ export class ToyShell {
         return this.reply("🎵 Wiggle wiggle wiggle! 🎵");
       case "joke": {
         const [q, a] = pick(JOKES);
-        this.reply(q, CRAYONS[5]);
+        this.reply(q, col(5));
         setTimeout(() => {
           // the prompt is already showing: wipe it, print the punchline, redraw prompt + any typing
-          this.out(`\r\x1b[2K  ${rgb("#ff5cc8")}${a}${RESET}\r\n\r\n`);
+          this.out(`\r\x1b[2K  ${rgb(col(6))}${a}${RESET}\r\n\r\n`);
           this.prompt(); this.out(this.line);
           speak(a); sfx.boing(); mascot("happy");
         }, 2500);
@@ -213,47 +230,49 @@ export class ToyShell {
       case "theme": case "look": {
         const t = THEMES.find((t) => t.key === arg.toLowerCase() || t.label.toLowerCase().startsWith(arg.toLowerCase()));
         if (!arg || !t) {
-          this.out(THEMES.map((t) => `  ${rgb("#ff5cc8")}theme ${t.key.padEnd(8)}${RESET} ${t.label}`).join("\r\n") + "\r\n\r\n");
+          this.out(THEMES.map((t) => `  ${rgb(col(6))}theme ${t.key.padEnd(9)}${RESET} ${t.label} ${rgb(col(4))}(${t.ages})${RESET}  ${t.blurb}`).join("\r\n") + "\r\n\r\n");
           speak("Pick a look! Type theme and then a name.");
           return;
         }
-        this.onTheme(t.key); sfx.sparkle(); mascot("wow");
-        return this.reply(`Ta-da! ${t.label}! ✨`);
+        this.onTheme(t.key);
+        return;   // the new theme greets itself
       }
       case "sticker": case "stickers": {
         const e = THINGS[arg.toLowerCase()]?.[0] ?? pick(STICKERS);
         addSticker(e); mascot("happy");
-        return this.reply(`Stick! ${e}  Drag it anywhere! Double-click to peel it off.`, pick(CRAYONS), "Stick!");
+        return this.reply(`Stick! ${e}  Drag it anywhere! Double-click to peel it off.`, pick(palette()), "Stick!");
       }
       case "grownup": case "parent":
         return this.onGrownUp();
     }
 
     const thing = THINGS[word] ?? THINGS[word.replace(/s$/, "")];
+    emit("tt:result", { kind: thing ? "thing" : "unknown", cmd: word });
     if (thing) {
       sfx.yay(); mascot("wow");
       bigWord(thing[0]);
-      return this.reply(`${thing[0]}  ${thing[1]}`, pick(CRAYONS), thing[1]);
+      return this.reply(`${thing[0]}  ${thing[1]}`, pick(palette()), thing[1]);
     }
 
     // anything else, including key-mashing: never an error, always a nudge
     sfx.hmm(); mascot("think");
     const idea = pick(IDEAS);
     say(`Try: ${idea}`);
-    this.reply(`Hmm, I don't know "${raw.slice(0, 20)}" yet! 🤔\nTry typing: ${idea}`, CRAYONS[5], `Hmm! I don't know that one yet. Try ${idea}!`);
+    this.reply(words().unknown(raw.slice(0, 20), idea), col(5), `Hmm! I don't know that one yet. Try ${idea}!`);
   }
 
   private math(a: number, op: string, b: number) {
     const v = op === "+" ? a + b : op === "-" ? a - b : op === "*" ? a * b : b ? a / b : NaN;
-    if (!Number.isFinite(v)) return this.reply("Dividing by zero? That's a puzzle even for me! 🤯", CRAYONS[5]);
+    if (!Number.isFinite(v)) return this.reply("Dividing by zero? That's a puzzle even for me! 🤯", col(5));
     const ans = Number.isInteger(v) ? String(v) : v.toFixed(2);
     const sign = { "+": "+", "-": "−", "*": "×", "/": "÷" }[op]!;
-    this.out(`  ${rgb(CRAYONS[0])}${a} ${sign} ${b} = ${rainbow(ans)}\r\n`);
+    this.out(`  ${rgb(col(0))}${a} ${sign} ${b} = ${rainbow(ans)}\r\n`);
+    emit("tt:result", { kind: "math", cmd: "math" });
     // little numbers get apples, so it can be counted on the screen
-    if (op === "+" && a + b <= 20) this.out(`  ${"🍎".repeat(a)} ${rgb("#ff9f1c")}+${RESET} ${"🍏".repeat(b)}\r\n`);
+    if (op === "+" && a + b <= 20) this.out(`  ${"🍎".repeat(a)} ${rgb(col(1))}+${RESET} ${"🍏".repeat(b)}\r\n`);
     if (op === "-" && a <= 20 && v >= 0) this.out(`  ${"🍎".repeat(v)}${"🫥".repeat(b)}\r\n`);
     this.out("\r\n");
     sfx.yay(); mascot("happy");
-    speak(`${a} ${{ "+": "plus", "-": "minus", "*": "times", "/": "divided by" }[op]} ${b} is ${ans}!`);
+    if (active().voice.chatty) speak(`${a} ${{ "+": "plus", "-": "minus", "*": "times", "/": "divided by" }[op]} ${b} is ${ans}!`);
   }
 }

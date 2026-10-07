@@ -1,48 +1,32 @@
+/*
+ * Core layout and shared UI. Themes (src/themes/<key>/style.css) restyle everything under
+ * [data-theme="<key>"] and can override these variables:
+ *   --ink       main text/outline color for UI (buttons, cards, bubble)
+ *   --paper     UI surface color (buttons, cards, bubble)
+ *   --ui-font   font for buttons, cards, bubble, giant words
+ */
 /* Comic Mono: a monospaced Comic Sans, MIT (public/fonts/ComicMono-LICENSE) */
 @font-face { font-family: "Comic Mono"; src: url("/fonts/ComicMono.ttf") format("truetype"); font-weight: 400; }
 @font-face { font-family: "Comic Mono"; src: url("/fonts/ComicMono-Bold.ttf") format("truetype"); font-weight: 700; }
-/* Maple Mono: rounded mono for the older looks, OFL-1.1 (public/fonts/MapleMono-LICENSE) */
-@font-face { font-family: "Maple Mono"; src: url("/fonts/MapleMono-Regular.woff2") format("woff2"); font-weight: 400; }
-@font-face { font-family: "Maple Mono"; src: url("/fonts/MapleMono-Bold.woff2") format("woff2"); font-weight: 700; }
 
 :root {
-  --cream: #fffaf0;
   --ink: #3b2a6b;
-  --pink: #ff5cc8;
-  --round: "Comic Mono", "Comic Sans MS", "Chalkboard SE", sans-serif;
+  --paper: #fff;
+  --ui-font: "Comic Mono", "Comic Sans MS", "Chalkboard SE", sans-serif;
 }
 
-html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; font-family: var(--round); color: var(--ink); }
+html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; font-family: var(--ui-font); color: var(--ink); }
 
-#page {
-  position: absolute; inset: 0;
-  /* the window itself is transparent: this is the app's corner, concentric with the crayon border */
-  border-radius: 48px; overflow: hidden;
-  /* dotted drawing paper */
-  background: radial-gradient(circle, #f1e3ff 1.6px, transparent 1.8px) 0 0 / 28px 28px, var(--cream);
-}
-#doodles { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-/* real pixels, not a stretched viewBox, so the corners stay round at any window size */
-/* flush with the window edge: half the stroke in, radius = window radius minus that */
-#doodles .outer { x: 5px; y: 5px; width: calc(100% - 10px); height: calc(100% - 10px); rx: 43px; }
-#doodles .inner { x: 14px; y: 14px; width: calc(100% - 28px); height: calc(100% - 28px); rx: 34px; }
-#sun { position: absolute; top: 30px; left: 118px;   /* clear of the traffic lights */ width: 84px; animation: spin 30s linear infinite; pointer-events: none; }
-/* two clouds drift in from opposite sides, cross, leave the page, and come round again */
-#cloud, #cloud2 { position: absolute; width: 120px; pointer-events: none; }
-#cloud { top: 34px; left: -130px; animation: drift-right 26s linear infinite; }
-#cloud2 { top: 62px; right: -130px; width: 96px; animation: drift-left 34s linear -9s infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes drift-right { to { transform: translateX(calc(100vw + 140px)); } }
-@keyframes drift-left { to { transform: translateX(calc(-100vw - 140px)); } }
-
+/* the window itself is transparent: #page is the visible surface */
+#page { position: absolute; inset: 0; border-radius: 48px; overflow: hidden; background: #fffaf0; }
+#chrome { position: absolute; inset: 0; pointer-events: none; }
+#chrome > * { pointer-events: none; }
 header { position: absolute; top: 0; left: 0; right: 0; height: 64px; }
 
 #term { position: absolute; top: 110px; left: 40px; right: 40px; bottom: 40px; }
-body:not(.real) #term { bottom: 170px; }     /* Tinker lives in the strip below the text */
+body:not(.real) #term { bottom: 170px; }     /* the sidekick lives in the strip below the text */
 .xterm .xterm-viewport { background: transparent !important; scrollbar-width: none; }
 .xterm .xterm-viewport::-webkit-scrollbar { width: 0; height: 0; }
-[data-theme="crayon"].wobble .xterm .xterm-rows { filter: url(#wobble); }
-[data-theme="crayon"] .xterm .xterm-rows { text-shadow: 0 0 0.6px currentColor; }   /* a bit of waxy fatness */
 .xterm .xterm-cursor { border-radius: 4px; }
 
 #scroll-thumb {
@@ -54,8 +38,8 @@ body:not(.real) #term { bottom: 170px; }     /* Tinker lives in the strip below 
 /* --- buttons --- */
 #tools { position: absolute; top: 40px; right: 48px; display: flex; gap: 10px; z-index: 5; }
 #tools button, .card button {
-  font: bold 18px var(--round); border: 4px solid var(--ink); border-radius: 18px;
-  background: #fff; padding: 4px 12px; cursor: pointer; box-shadow: 0 4px 0 var(--ink);
+  font: bold 18px var(--ui-font); color: var(--ink); border: 4px solid var(--ink); border-radius: 18px;
+  background: var(--paper); padding: 4px 12px; cursor: pointer; box-shadow: 0 4px 0 var(--ink);
   transition: transform 0.1s;
 }
 #tools button:active, .card button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
@@ -64,48 +48,19 @@ body:not(.real) #term { bottom: 170px; }     /* Tinker lives in the strip below 
 
 #realbadge {
   display: none; position: absolute; top: 44px; left: 50%; transform: translateX(-50%);
-  background: #3b2a6b; color: #fff; padding: 4px 14px; border-radius: 12px; font-weight: bold;
+  background: var(--ink); color: var(--paper); padding: 4px 14px; border-radius: 12px; font-weight: bold;
 }
 .real #realbadge { display: block; }
-.real #mascot, .real #sun, .real #cloud, .real #cloud2 { display: none; }
+.real #mascot, .real #chrome { display: none; }
 
-/* --- Tinker --- */
-#mascot { position: absolute; right: 48px; bottom: 26px; width: 120px; cursor: pointer; z-index: 4; transform-origin: 50% 100%; animation: bob 2.6s ease-in-out infinite; }
-#mascot svg { width: 100%; overflow: visible; }
-@keyframes bob { 50% { transform: translateY(-6px) scaleY(1.02); } }
-.mouth, .closed { display: none; }
-.mouth.smile { display: inline; }
-.eyes { animation: blink 4.5s infinite; transform-origin: 70px 70px; }
-@keyframes blink { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
-.arm { transform-box: fill-box; }
-.arm.l { transform-origin: 100% 100%; } .arm.r { transform-origin: 0% 100%; }
-
-#mascot.happy { animation: hop 0.5s ease-out 2; }
-@keyframes hop { 40% { transform: translateY(-34px) scale(1.05, 0.95); } 70% { transform: translateY(0) scale(1.1, 0.88); } }
-#mascot.wow .mouth.smile { display: none; } #mascot.wow .mouth.ooh { display: inline; }
-#mascot.wow { animation: grow 0.6s ease-out; }
-@keyframes grow { 40% { transform: scale(1.18); } }
-#mascot.think { animation: tilt 1.6s ease-in-out; }
-#mascot.think .mouth.smile { display: none; } #mascot.think .mouth.hmm { display: inline; }
-#mascot.think .pupil { transform: translate(3px, -4px); }
-@keyframes tilt { 30%, 70% { transform: rotate(-10deg); } }
-#mascot.dance { animation: wiggle 0.4s ease-in-out infinite; }
-#mascot.dance .arm.l { animation: flap 0.4s infinite alternate; }
-#mascot.dance .arm.r { animation: flap 0.4s infinite alternate-reverse; }
-@keyframes wiggle { 25% { transform: rotate(-12deg) translateY(-10px); } 75% { transform: rotate(12deg) translateY(-10px); } }
-@keyframes flap { to { transform: rotate(-40deg); } }
-#mascot.wave .arm.r { animation: flap 0.25s 6 alternate; }
-#mascot.sleep { animation: bob 5s ease-in-out infinite; }
-#mascot.sleep .eyes { display: none; } #mascot.sleep .closed { display: inline; }
-#zzz { display: none; position: absolute; top: -10px; right: 0; font: bold 26px var(--round); color: #7b5cff; }
-#zzz span { font-size: 0.8em; }
-#mascot.sleep #zzz { display: block; animation: floatup 3s ease-in-out infinite; }
-@keyframes floatup { from { transform: translate(0, 10px); opacity: 0; } 50% { opacity: 1; } to { transform: translate(14px, -24px); opacity: 0; } }
-
+/* --- sidekick: the theme fills #sidekick and animates the mood classes on #mascot --- */
+#mascot { position: absolute; right: 48px; bottom: 26px; width: 120px; cursor: pointer; z-index: 4; transform-origin: 50% 100%; }
+#mascot:not(:has(#sidekick > *)) { pointer-events: none; }
+#sidekick svg { width: 100%; overflow: visible; display: block; }
 #bubble {
   position: absolute; bottom: 40%; right: calc(100% + 14px); width: max-content; max-width: 220px;
-  background: #fff; border: 4px solid var(--ink); border-radius: 22px; padding: 8px 14px;
-  font: bold 17px var(--round); opacity: 0; transform: scale(0.5); transform-origin: 100% 70%;
+  background: var(--paper); color: var(--ink); border: 4px solid var(--ink); border-radius: 22px; padding: 8px 14px;
+  font: bold 17px var(--ui-font); opacity: 0; transform: scale(0.5); transform-origin: 100% 70%;
   transition: opacity 0.2s, transform 0.3s cubic-bezier(.3,1.6,.5,1); pointer-events: none;
 }
 #bubble::after { content: ""; position: absolute; right: -24px; bottom: 14px; border: 10px solid transparent; border-left-color: var(--ink); }
@@ -113,124 +68,36 @@ body:not(.real) #term { bottom: 170px; }     /* Tinker lives in the strip below 
 
 /* --- effects --- */
 #fx { position: fixed; inset: 0; pointer-events: none; z-index: 10; overflow: hidden; }
-.bit { position: absolute; font: bold 18px var(--round); }
+.bit { position: absolute; font: bold 18px var(--ui-font); }
 .bit.big { font-size: 26px; }
-.bigword { position: absolute; top: 40%; left: 0; right: 0; text-align: center; font: bold 130px var(--round); filter: url(#wobble); -webkit-text-stroke: 4px #3b2a6b; paint-order: stroke fill; white-space: nowrap; transition: opacity 0.6s, transform 0.6s; }
+.bigword { position: absolute; top: 40%; left: 0; right: 0; text-align: center; font: bold 130px var(--ui-font); -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; white-space: nowrap; transition: opacity 0.6s, transform 0.6s; }
 .bigword span { display: inline-block; animation: pop 0.5s cubic-bezier(.3,1.8,.5,1) both, jiggle 1s 0.5s ease-in-out infinite; }
 .bigword.bye { opacity: 0; transform: translateY(-60px); }
+.bigword.pic { -webkit-text-stroke: 0; font-size: 160px; }
 @keyframes pop { from { transform: scale(0) rotate(-30deg); } }
 @keyframes jiggle { 50% { transform: translateY(-12px) rotate(4deg); } }
 
 /* --- grown-up card --- */
-#parent { position: fixed; inset: 0; background: rgba(59, 42, 107, 0.35); display: grid; place-items: center; z-index: 20; }
-.card { background: #fff; border: 5px solid var(--ink); border-radius: 26px; padding: 22px 28px; width: 360px; display: grid; gap: 12px; font-size: 16px; }
+#parent { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.35); display: grid; place-items: center; z-index: 20; }
+.card { background: var(--paper); color: var(--ink); border: 5px solid var(--ink); border-radius: 26px; padding: 22px 28px; width: 380px; display: grid; gap: 12px; font-size: 16px; }
 .card h2 { margin: 0 0 4px; }
 .card label { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.card input:not([type]) , .card input[name="ans"] { font: bold 18px var(--round); width: 120px; border: 3px solid var(--ink); border-radius: 10px; padding: 3px 8px; }
+.card input:not([type]), .card input[name="ans"], .card select { font: bold 16px var(--ui-font); color: var(--ink); background: var(--paper); border: 3px solid var(--ink); border-radius: 10px; padding: 3px 8px; }
+.card input:not([type]), .card input[name="ans"] { width: 120px; }
 .card .row { display: flex; justify-content: flex-end; gap: 10px; }
 .card .warn { font-size: 14px; margin: 0; }
-.card hr { border: none; border-top: 3px dashed #d9ccff; width: 100%; }
+.card hr { border: none; border-top: 3px dashed var(--ink); opacity: 0.25; width: 100%; }
 .shake { animation: shake 0.4s; }
 @keyframes shake { 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-}
-.bigword.pic { filter: none; -webkit-text-stroke: 0; font-size: 160px; }
-
-/* --- stickers --- */
+/* --- sticker tray --- */
 #tray {
   position: absolute; top: 96px; right: 48px; z-index: 6; display: grid; grid-template-columns: repeat(6, 52px); gap: 6px;
-  background: #fff; border: 4px solid var(--ink); border-radius: 22px; padding: 10px; box-shadow: 0 6px 0 var(--ink);
+  background: var(--paper); border: 4px solid var(--ink); border-radius: 22px; padding: 10px; box-shadow: 0 6px 0 var(--ink);
   animation: pop 0.25s cubic-bezier(.3,1.6,.5,1);
 }
 #tray button { font-size: 34px; background: none; border: none; cursor: pointer; border-radius: 12px; transition: transform 0.1s; }
-#tray button:hover { transform: scale(1.25) rotate(-6deg); background: #fff3c4; }
-
-/* --- themes: crayon is the base above; the rest swap the decorations --- */
-#deco { display: none; position: absolute; inset: 0; pointer-events: none; }
-#deco i { position: absolute; display: block; }
-body:not([data-theme="crayon"]) :is(#doodles, #sun, #cloud, #cloud2) { display: none; }
-body:not([data-theme="crayon"]) #deco { display: block; }
-
-/* Toy Box: chunky glossy plastic, primary colors, a row of beads */
-[data-theme="toybox"] { --ink: #1d3557; --round: "Maple Mono", sans-serif; }
-[data-theme="toybox"] #page {
-  background: radial-gradient(circle, #d6efff 3px, transparent 3.5px) 0 0 / 34px 34px, #eef8ff;
-  box-shadow: inset 0 0 0 14px #e63946, inset 0 0 0 18px #fff, inset 0 0 0 26px #ffd60a, inset 0 3px 0 30px rgba(255,255,255,.5);
-}
-[data-theme="toybox"] #deco i { top: 44px; width: 38px; height: 38px; border-radius: 50%; box-shadow: inset -4px -6px 0 rgba(0,0,0,.18), 0 3px 0 rgba(0,0,0,.15); }
-[data-theme="toybox"] #deco i::after { content: ""; position: absolute; left: 9px; top: 7px; width: 10px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.75); }
-[data-theme="toybox"] #deco i:nth-child(1) { left: 70px; background: #e63946; }
-[data-theme="toybox"] #deco i:nth-child(2) { left: 116px; background: #ffd60a; }
-[data-theme="toybox"] #deco i:nth-child(3) { left: 162px; background: #1d8fe1; }
-[data-theme="toybox"] #deco i:nth-child(4) { left: 208px; background: #2fbf4a; }
-[data-theme="toybox"] #deco i:nth-child(5) { left: 254px; background: #ff8c1a; }
-[data-theme="toybox"] #deco i:nth-child(6) { left: 300px; background: #8e44ec; }
-[data-theme="toybox"] #tools button { border-radius: 50%; width: 52px; height: 52px; padding: 0; background: #ffd60a; box-shadow: inset -3px -5px 0 rgba(0,0,0,.15), 0 4px 0 var(--ink); }
-[data-theme="toybox"] #mascot .skin { fill: #ff8c1a; } [data-theme="toybox"] #mascot .belly { fill: #ffe0a3; } [data-theme="toybox"] #mascot .limb { stroke: #e05d00; }
-
-/* Brick Builder: a studded baseplate, a red frame plate, the text on a smooth white tile */
-[data-theme="bricks"] { --ink: #222; --round: "Maple Mono", sans-serif; }
-[data-theme="bricks"] #page {
-  border-radius: 14px;
-  background: radial-gradient(circle at 50% 44%, #6cc96c 0 6px, #2f7d32 6.5px 8.5px, transparent 9px) 0 0 / 30px 30px, #43a047;
-  box-shadow: inset 0 0 0 16px #d01012, inset 0 0 0 19px #8f0a0b;
-}
-[data-theme="bricks"] #term { background: #fafafa; border-radius: 6px; box-shadow: 0 0 0 14px #fafafa, 0 8px 0 14px #c9c9c9; }
-[data-theme="bricks"] #deco i {
-  top: 34px; width: 112px; height: 40px; border-radius: 4px; box-shadow: inset 0 -6px 0 rgba(0,0,0,.2);
-  background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,.35) 0 7px, rgba(0,0,0,.15) 7.5px 9px, transparent 9.5px);
-  background-size: 28px 40px;
-}
-[data-theme="bricks"] #deco i:nth-child(1) { left: 56px; background-color: #ffcd00; }
-[data-theme="bricks"] #deco i:nth-child(2) { left: 176px; background-color: #0055bf; width: 56px; }
-[data-theme="bricks"] #deco i:nth-child(3) { left: 240px; background-color: #ffcd00; width: 84px; }
-[data-theme="bricks"] #deco i:nth-child(n+4) { display: none; }
-[data-theme="bricks"] #tools button { border-radius: 4px; background: #ffcd00; border-color: #222; box-shadow: 0 5px 0 #b38f00; }
-[data-theme="bricks"] #mascot .skin { fill: #ffcd00; } [data-theme="bricks"] #mascot .belly { fill: #d01012; } [data-theme="bricks"] #mascot .limb { stroke: #d01012; }
-[data-theme="bricks"] #bubble, [data-theme="bricks"] .card, [data-theme="bricks"] #tray { border-radius: 6px; }
-
-/* Paint Party: a white canvas with a wild striped border and paint splats */
-[data-theme="paint"] { --ink: #2b1055; }
-[data-theme="paint"] #page {
-  border: 14px solid transparent;
-  background: linear-gradient(#fff, #fff) padding-box,
-    repeating-linear-gradient(45deg, #ff00a8 0 16px, #00d1ff 16px 32px, #ffe600 32px 48px, #00e05a 48px 64px) 0 0 / 90.5px 90.5px border-box;
-  animation: march 3s linear infinite;
-}
-@keyframes march { to { background-position: 0 0, 90.5px 0; } }
-[data-theme="paint"] #deco i { border-radius: 58% 42% 63% 37% / 45% 60% 40% 55%; opacity: .22; }
-[data-theme="paint"] #deco i:nth-child(1) { left: 6%; top: 8%; width: 140px; height: 110px; background: #ff00a8; }
-[data-theme="paint"] #deco i:nth-child(2) { right: 30%; top: 4%; width: 90px; height: 80px; background: #00d1ff; }
-[data-theme="paint"] #deco i:nth-child(3) { left: 40%; bottom: 6%; width: 180px; height: 120px; background: #ffe600; }
-[data-theme="paint"] #deco i:nth-child(4) { left: 3%; bottom: 10%; width: 100px; height: 100px; background: #00e05a; }
-[data-theme="paint"] #deco i:nth-child(5) { right: 4%; top: 40%; width: 70px; height: 90px; background: #8a2be2; }
-[data-theme="paint"] #deco i:nth-child(6) { display: none; }
-[data-theme="paint"] #tools button { background: #00d1ff; transform: rotate(-4deg); }
-[data-theme="paint"] #mascot .skin { fill: #ff4fc1; } [data-theme="paint"] #mascot .belly { fill: #ffd1f0; } [data-theme="paint"] #mascot .limb { stroke: #c2008a; }
-
-/* Night Sky: dark and calm, for older kids and bedtime */
-[data-theme="night"] { --ink: #e8f1ff; --round: "Maple Mono", sans-serif; }
-[data-theme="night"] #page {
-  background: radial-gradient(circle, rgba(255,255,255,.7) 1px, transparent 1.5px) 0 0 / 97px 83px,
-    radial-gradient(circle, rgba(255,255,255,.4) 1px, transparent 1.5px) 40px 30px / 61px 71px,
-    radial-gradient(ellipse at 70% 0%, #2a3a8a, #0b1030 70%);
-  box-shadow: inset 0 0 0 3px #5cf2ff, inset 0 0 30px rgba(92,242,255,.35);
-}
-[data-theme="night"] #deco i:nth-child(1) { right: 280px; top: 34px; width: 62px; height: 62px; border-radius: 50%; box-shadow: 14px -6px 0 0 #ffe9a8; }
-[data-theme="night"] #deco i:nth-child(n+2) { width: 4px; height: 4px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px 2px #9ef7ff; animation: twinkle 3s ease-in-out infinite; }
-[data-theme="night"] #deco i:nth-child(2) { left: 12%; top: 9%; } [data-theme="night"] #deco i:nth-child(3) { left: 35%; top: 6%; animation-delay: -1s; }
-[data-theme="night"] #deco i:nth-child(4) { left: 55%; top: 12%; animation-delay: -2s; } [data-theme="night"] #deco i:nth-child(5) { left: 22%; top: 15%; animation-delay: -.5s; }
-[data-theme="night"] #deco i:nth-child(6) { left: 46%; top: 4%; animation-delay: -1.5s; }
-@keyframes twinkle { 50% { opacity: .2; } }
-[data-theme="night"] #tools button, [data-theme="night"] .card, [data-theme="night"] #bubble, [data-theme="night"] #tray { background: #1b2350; color: #e8f1ff; border-color: #5cf2ff; box-shadow: 0 4px 0 #5cf2ff; }
-[data-theme="night"] .card input, [data-theme="night"] .card select { background: #0b1030; color: #e8f1ff; border-color: #5cf2ff; }
-[data-theme="night"] #bubble::after { border-left-color: #5cf2ff; }
-[data-theme="night"] #mascot .skin { fill: #3fd0c9; } [data-theme="night"] #mascot .belly { fill: #a6f5ef; } [data-theme="night"] #mascot .limb { stroke: #1d8f8a; }
-[data-theme="night"] #scroll-thumb { background: #5cf2ff; }
-/* the waxy grain is the crayon look only */
-body:not([data-theme="crayon"]) #mascot g { filter: none; }
+#tray button:hover { transform: scale(1.25) rotate(-6deg); background: rgba(255, 220, 80, 0.3); }
 
 /* resize handles: macOS gives a transparent window no grabbable edge, so we draw our own */
 .grip { position: fixed; z-index: 30; }
@@ -240,3 +107,7 @@ body:not([data-theme="crayon"]) #mascot g { filter: none; }
 .grip.NE, .grip.NW, .grip.SE, .grip.SW { width: 18px; height: 18px; }
 .grip.NE { top: 0; right: 0; cursor: nesw-resize; } .grip.SW { bottom: 0; left: 0; cursor: nesw-resize; }
 .grip.NW { top: 0; left: 0; cursor: nwse-resize; } .grip.SE { bottom: 0; right: 0; cursor: nwse-resize; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
