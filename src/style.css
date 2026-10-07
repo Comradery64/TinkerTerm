@@ -26,10 +26,14 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: transparent;
 /* flush with the window edge: half the stroke in, radius = window radius minus that */
 #doodles .outer { x: 5px; y: 5px; width: calc(100% - 10px); height: calc(100% - 10px); rx: 43px; }
 #doodles .inner { x: 14px; y: 14px; width: calc(100% - 28px); height: calc(100% - 28px); rx: 34px; }
-#sun { position: absolute; top: 30px; right: 170px; width: 84px; animation: spin 30s linear infinite; pointer-events: none; }
-#cloud { position: absolute; top: 38px; left: 70px; width: 120px; animation: drift 14s ease-in-out infinite alternate; pointer-events: none; }
+#sun { position: absolute; top: 30px; left: 118px;   /* clear of the traffic lights */ width: 84px; animation: spin 30s linear infinite; pointer-events: none; }
+/* two clouds drift in from opposite sides, cross, leave the page, and come round again */
+#cloud, #cloud2 { position: absolute; width: 120px; pointer-events: none; }
+#cloud { top: 34px; left: -130px; animation: drift-right 26s linear infinite; }
+#cloud2 { top: 62px; right: -130px; width: 96px; animation: drift-left 34s linear -9s infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes drift { to { transform: translateX(80px); } }
+@keyframes drift-right { to { transform: translateX(calc(100vw + 140px)); } }
+@keyframes drift-left { to { transform: translateX(calc(-100vw - 140px)); } }
 
 header { position: absolute; top: 0; left: 0; right: 0; height: 64px; }
 
@@ -63,7 +67,7 @@ body:not(.real) #term { bottom: 170px; }     /* Tinker lives in the strip below 
   background: #3b2a6b; color: #fff; padding: 4px 14px; border-radius: 12px; font-weight: bold;
 }
 .real #realbadge { display: block; }
-.real #mascot, .real #sun, .real #cloud { display: none; }
+.real #mascot, .real #sun, .real #cloud, .real #cloud2 { display: none; }
 
 /* --- Tinker --- */
 #mascot { position: absolute; right: 48px; bottom: 26px; width: 120px; cursor: pointer; z-index: 4; transform-origin: 50% 100%; animation: bob 2.6s ease-in-out infinite; }
@@ -146,7 +150,7 @@ body:not(.real) #term { bottom: 170px; }     /* Tinker lives in the strip below 
 /* --- themes: crayon is the base above; the rest swap the decorations --- */
 #deco { display: none; position: absolute; inset: 0; pointer-events: none; }
 #deco i { position: absolute; display: block; }
-body:not([data-theme="crayon"]) :is(#doodles, #sun, #cloud) { display: none; }
+body:not([data-theme="crayon"]) :is(#doodles, #sun, #cloud, #cloud2) { display: none; }
 body:not([data-theme="crayon"]) #deco { display: block; }
 
 /* Toy Box: chunky glossy plastic, primary colors, a row of beads */
