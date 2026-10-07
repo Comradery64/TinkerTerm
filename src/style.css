@@ -9,14 +9,19 @@
   --round: "Comic Mono", "Comic Sans MS", "Chalkboard SE", sans-serif;
 }
 
-html, body { margin: 0; height: 100%; overflow: hidden; background: var(--cream); font-family: var(--round); color: var(--ink); }
+html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; font-family: var(--round); color: var(--ink); }
 
 #page {
   position: relative; height: 100%;
+  /* the window itself is transparent: this is the app's corner, concentric with the crayon border */
+  border-radius: 48px; overflow: hidden;
   /* dotted drawing paper */
   background: radial-gradient(circle, #f1e3ff 1.6px, transparent 1.8px) 0 0 / 28px 28px, var(--cream);
 }
 #doodles { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* real pixels, not a stretched viewBox, so the corners stay round at any window size */
+#doodles .outer { x: 18px; y: 18px; width: calc(100% - 36px); height: calc(100% - 36px); rx: 30px; }
+#doodles .inner { x: 28px; y: 27px; width: calc(100% - 56px); height: calc(100% - 54px); rx: 24px; }
 #sun { position: absolute; top: 6px; right: 190px; width: 84px; animation: spin 30s linear infinite; pointer-events: none; }
 #cloud { position: absolute; top: 14px; left: 90px; width: 120px; animation: drift 14s ease-in-out infinite alternate; pointer-events: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
