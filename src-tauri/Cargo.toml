@@ -21,3 +21,7 @@ ort = { version = "=2.0.0-rc.13", default-features = false, features = ["std", "
 objc2-app-kit = { version = "0.3", features = ["NSWindow", "NSButton", "NSControl", "NSView", "NSResponder", "NSAnimationContext", "NSAnimation"] }
 objc2 = "0.6"
 ort = { version = "=2.0.0-rc.13", default-features = false, features = ["coreml"] }
+
+# dependencies (ort, ndarray) optimized even in dev: debug builds made the voice noticeably slower
+[profile.dev.package."*"]
+opt-level = 3
