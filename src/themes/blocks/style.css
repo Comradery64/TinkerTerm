@@ -1,0 +1,146 @@
+/* Block World: a window cut into a pixel landscape. Everything snaps to a grid; motion uses steps(). */
+/* VT323 and Press Start 2P: SIL OFL 1.1 (public/themes/blocks/fonts/*-OFL.txt) */
+@font-face { font-family: "Blocks VT323"; src: url("/themes/blocks/fonts/VT323-Regular.ttf") format("truetype"); }
+@font-face { font-family: "Blocks Press Start"; src: url("/themes/blocks/fonts/PressStart2P-Regular.ttf") format("truetype"); }
+
+[data-theme="blocks"] {
+  --ink: #1b1b1b; --paper: #c6c6c6;
+  --ui-font: "Blocks Press Start", "Menlo", monospace;
+}
+[data-theme="blocks"] #page { border-radius: 10px; background: #79a6ff; }
+[data-theme="blocks"] #chrome svg, [data-theme="blocks"] #chrome canvas { image-rendering: pixelated; }
+
+/* --- the sky: one 8-minute day, noon to sunset to night to dawn --- */
+[data-theme="blocks"] #blocks-sky { position: absolute; inset: 0; background: #79a6ff; animation: blocks-sky 480s linear infinite; }
+@keyframes blocks-sky {
+  0%, 30% { background-color: #79a6ff; } 42% { background-color: #f29a5c; } 50% { background-color: #3a2f6b; }
+  56%, 84% { background-color: #10163a; } 92% { background-color: #e8a6a0; } 100% { background-color: #79a6ff; }
+}
+[data-theme="blocks"] #blocks-sky .stars {
+  position: absolute; inset: 0; opacity: 0; animation: blocks-stars 480s steps(1) infinite;
+  background:
+    linear-gradient(#fff, #fff) 12% 50px / 3px 3px no-repeat, linear-gradient(#fff, #fff) 31% 70px / 3px 3px no-repeat,
+    linear-gradient(#fff, #fff) 47% 40px / 3px 3px no-repeat, linear-gradient(#fff, #fff) 63% 78px / 3px 3px no-repeat,
+    linear-gradient(#fff, #fff) 76% 46px / 3px 3px no-repeat, linear-gradient(#fff, #fff) 88% 66px / 3px 3px no-repeat,
+    linear-gradient(#fff, #fff) 22% calc(100% - 96px) / 3px 3px no-repeat, linear-gradient(#fff, #fff) 58% calc(100% - 104px) / 3px 3px no-repeat;
+}
+@keyframes blocks-stars { 0%, 52% { opacity: 0; } 53%, 88% { opacity: 0.9; } 89% { opacity: 0; } }
+
+/* sun crosses the sky band left to right by day; the moon does the same by night */
+[data-theme="blocks"] #blocks-sun, [data-theme="blocks"] #blocks-moon { position: absolute; top: 40px; left: 130px; width: 36px; opacity: 0; }
+[data-theme="blocks"] #blocks-sun { animation: blocks-arc 480s steps(240) -60s infinite; }
+[data-theme="blocks"] #blocks-moon { animation: blocks-arc 480s steps(240) -300s infinite; }
+@keyframes blocks-arc {
+  0% { transform: translate(0, 18px); opacity: 1; }
+  25% { transform: translate(calc((100vw - 380px) / 2), -6px); }
+  48% { transform: translate(calc(100vw - 380px), 18px); opacity: 1; }
+  50%, 100% { transform: translate(calc(100vw - 380px), 18px); opacity: 0; }
+}
+[data-theme="blocks"] .blocks-cloud { position: absolute; width: 96px; left: -110px; top: 34px; opacity: 0.92; }
+[data-theme="blocks"] .blocks-cloud.a { animation: blocks-drift 70s steps(140) infinite; }
+[data-theme="blocks"] .blocks-cloud.b { top: 58px; width: 72px; animation: blocks-drift 95s steps(190) -40s infinite; }
+@keyframes blocks-drift { to { transform: translateX(calc(100vw + 120px)); } }
+
+/* --- the block frame: grass along the top, dirt walls, grass and ore at the bottom --- */
+[data-theme="blocks"] #blocks-frame { position: absolute; inset: 0; width: 100%; height: 100%; }
+[data-theme="blocks"] #blocks-frame .top { x: 0; y: 0; width: 100%; height: 24px; }
+[data-theme="blocks"] #blocks-frame .left { x: 0; y: 24px; width: 24px; height: calc(100% - 72px); }
+[data-theme="blocks"] #blocks-frame .right { x: calc(100% - 24px); y: 24px; width: 24px; height: calc(100% - 72px); }
+[data-theme="blocks"] #blocks-frame .ground { x: 0; y: calc(100% - 48px); width: 100%; height: 24px; }
+[data-theme="blocks"] #blocks-frame .deep { x: 0; y: calc(100% - 24px); width: 100%; height: 24px; }
+
+/* --- the text panel: a dark see-through slab, readable at noon and at midnight --- */
+[data-theme="blocks"] #blocks-panel {
+  position: absolute; top: 92px; left: 40px; right: 40px; bottom: 40px;
+  background: rgba(14, 16, 22, 0.82); border: 3px solid #0b0b0b;
+  box-shadow: inset 3px 3px 0 rgba(255, 255, 255, 0.14), inset -3px -3px 0 rgba(0, 0, 0, 0.45);
+}
+[data-theme="blocks"]:not(.real) #blocks-panel { bottom: 156px; }
+[data-theme="blocks"] #term { top: 104px; left: 54px; right: 54px; bottom: 54px; }
+[data-theme="blocks"]:not(.real) #term { bottom: 168px; }
+[data-theme="blocks"] .xterm .xterm-cursor { border-radius: 0; }
+[data-theme="blocks"] #scroll-thumb { border-radius: 0; background: #c6c6c6; }
+
+/* --- hotbar: 9 slots resting on the grass --- */
+[data-theme="blocks"] #blocks-hotbar {
+  position: absolute; left: 40px; bottom: 58px; display: grid; grid-template-columns: repeat(9, 40px); gap: 2px;
+  padding: 3px; background: #2b2b2b; border: 3px solid #0b0b0b;
+}
+[data-theme="blocks"] #blocks-hotbar > div {
+  position: relative; width: 40px; height: 40px; box-sizing: border-box; background: #8b8b8b;
+  border: 3px solid; border-color: #373737 #fff #fff #373737; display: grid; place-items: center;
+}
+[data-theme="blocks"] #blocks-hotbar > div.sel { outline: 3px solid #fff; outline-offset: 1px; z-index: 1; }
+[data-theme="blocks"] #blocks-hotbar > div.pop canvas { animation: blocks-pop 0.36s steps(3); }
+@keyframes blocks-pop { from { transform: scale(1.6) translateY(-6px); } }
+[data-theme="blocks"] #blocks-hotbar canvas { width: 32px; height: 32px; }
+[data-theme="blocks"] #blocks-hotbar b {
+  position: absolute; right: 0; bottom: -1px; font: 10px var(--ui-font); color: #fff; text-shadow: 2px 2px 0 #3f3f3f;
+}
+
+/* --- "skill unlocked" toast --- */
+[data-theme="blocks"] #blocks-toast {
+  position: absolute; top: 30px; left: 50%; display: grid; gap: 6px; padding: 9px 14px; min-width: 190px;
+  background: #212121; border: 3px solid #0b0b0b; box-shadow: inset 0 0 0 3px #555;
+  font: 10px var(--ui-font); color: #fff; transform: translate(-50%, -140px); z-index: 7;
+}
+[data-theme="blocks"] #blocks-toast b { color: #ffff55; font-weight: normal; }
+[data-theme="blocks"] #blocks-toast.on { animation: blocks-toast 3.2s steps(1, end) forwards, blocks-slide 0.3s steps(4); transform: translate(-50%, 0); }
+@keyframes blocks-slide { from { transform: translate(-50%, -80px); } }
+@keyframes blocks-toast { 92% { opacity: 1; } 100% { opacity: 0; } }
+
+/* --- buttons: stone GUI buttons --- */
+[data-theme="blocks"] #tools { top: 38px; right: 40px; gap: 6px; }
+[data-theme="blocks"] #tools button {
+  font: 16px var(--ui-font); border-radius: 0; background: #7c7c7c; color: #fff; padding: 4px 9px;
+  border: 3px solid #0b0b0b; box-shadow: inset 3px 3px 0 #a9a9a9, inset -3px -3px 0 #555; transition: none;
+}
+[data-theme="blocks"] #tools button:hover { background: #7d8cc8; box-shadow: inset 3px 3px 0 #a7b4ea, inset -3px -3px 0 #4f5b94; }
+[data-theme="blocks"] #tools button:active { transform: translateY(2px); box-shadow: inset 3px 3px 0 #555, inset -3px -3px 0 #a9a9a9; }
+[data-theme="blocks"] #grownup { font-size: 12px !important; }
+[data-theme="blocks"] #tray { border-radius: 0; background: #c6c6c6; border: 3px solid #0b0b0b; box-shadow: inset 3px 3px 0 #fff, inset -3px -3px 0 #555; }
+[data-theme="blocks"] .card { border-radius: 0; background: #c6c6c6; border: 3px solid #0b0b0b; box-shadow: inset 3px 3px 0 #fff, inset -3px -3px 0 #555; font-size: 11px; line-height: 1.6; }
+[data-theme="blocks"] .card button { border-radius: 0; box-shadow: none; font-size: 11px; }
+
+/* --- speech bubble: a chat line, not a cloud --- */
+[data-theme="blocks"] #bubble {
+  border-radius: 0; border: 3px solid #0b0b0b; background: rgba(14, 16, 22, 0.9); color: #fff;
+  font: 11px/1.6 var(--ui-font); padding: 8px 10px; max-width: 230px; bottom: 60%;
+  transition: opacity 0.15s steps(2), transform 0.2s steps(3);
+}
+[data-theme="blocks"] #bubble::after { right: -18px; border-width: 8px; border-left-color: #0b0b0b; border-radius: 0; }
+
+/* --- giant words and key dust --- */
+[data-theme="blocks"] .bigword:not(.pic) { font-size: clamp(36px, 9vw, 84px); -webkit-text-stroke: 0; text-shadow: 0.09em 0.09em 0 #2a2a2a; }
+[data-theme="blocks"] .bigword span { animation-timing-function: steps(4), steps(2); }
+[data-theme="blocks"] #fx .bit { font-size: 0 !important; width: 6px; height: 6px; background: currentColor; box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35); }
+[data-theme="blocks"] #fx .bit:nth-child(3n) { background: #8a5a35; }
+[data-theme="blocks"] #fx .bit:nth-child(3n+1) { background: #5fae3b; }
+
+/* --- Bloop the slime cube --- */
+[data-theme="blocks"] #mascot { right: 40px; bottom: 46px; width: 84px; animation: blocks-idle 1.4s steps(1) infinite; }
+[data-theme="blocks"] #sidekick svg { overflow: visible; }
+@keyframes blocks-idle { 50% { transform: scale(1.04, 0.95); } }
+[data-theme="blocks"] .face, [data-theme="blocks"] .ask, [data-theme="blocks"] .nub, [data-theme="blocks"] #blocks-zzz { display: none; }
+[data-theme="blocks"] #mascot .face.happy { display: inline; }
+[data-theme="blocks"] .nub { transform-box: fill-box; transform-origin: 0 100%; }
+
+[data-theme="blocks"] #mascot.happy { animation: blocks-hop 0.5s steps(5) 2; }
+@keyframes blocks-hop { 0% { transform: scale(1.12, 0.86); } 40% { transform: translateY(-30px) scale(0.92, 1.1); } 80% { transform: translateY(0) scale(1.15, 0.85); } }
+[data-theme="blocks"] #mascot.wow { animation: blocks-wow 0.6s steps(3); }
+@keyframes blocks-wow { 40% { transform: scale(1.2); } }
+[data-theme="blocks"] #mascot.wow .face.happy { display: none; } [data-theme="blocks"] #mascot.wow .face.wow { display: inline; }
+[data-theme="blocks"] #mascot.think { animation: blocks-think 0.8s steps(1) 2; }
+@keyframes blocks-think { 50% { transform: translateX(-4px); } }
+[data-theme="blocks"] #mascot.think .face.happy { display: none; }
+[data-theme="blocks"] #mascot.think .face.think, [data-theme="blocks"] #mascot.think .ask { display: inline; }
+[data-theme="blocks"] #mascot.dance { animation: blocks-dance 0.5s steps(4) infinite; }
+@keyframes blocks-dance { 25% { transform: translate(-8px, -16px) scale(0.95, 1.08); } 50% { transform: scale(1.12, 0.88); } 75% { transform: translate(8px, -16px) scale(0.95, 1.08); } }
+[data-theme="blocks"] #mascot.dance .nub, [data-theme="blocks"] #mascot.wave .nub { display: inline; animation: blocks-wave 0.25s steps(1) infinite; }
+@keyframes blocks-wave { 50% { transform: translateY(-3px); } }
+[data-theme="blocks"] #mascot.sleep { animation: blocks-idle 3s steps(1) infinite; }
+[data-theme="blocks"] #mascot.sleep .face.happy { display: none; } [data-theme="blocks"] #mascot.sleep .face.sleep { display: inline; }
+[data-theme="blocks"] #blocks-zzz { position: absolute; top: -18px; right: -4px; font: 14px var(--ui-font); color: #fff; text-shadow: 2px 2px 0 #2a2a2a; }
+[data-theme="blocks"] #blocks-zzz span { font-size: 0.8em; }
+[data-theme="blocks"] #mascot.sleep #blocks-zzz { display: block; animation: blocks-zzz 2.4s steps(4) infinite; }
+@keyframes blocks-zzz { from { transform: translate(0, 8px); opacity: 0; } 50% { opacity: 1; } to { transform: translate(12px, -18px); opacity: 0; } }
