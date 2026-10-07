@@ -38,6 +38,7 @@ const theme: ThemeDef = {
     cyan: "#4cc4f0", brightCyan: CYAN, white: "#b8c7d3", brightWhite: "#f2f7fb",
   },
   voice: { id: "bm_george", speed: 1, chatty: false },
+  bigPictures: false,
   sounds: {
     // relay click: a short bright snap with a faint tick under it
     key() { noise(0, 0.018, 0.12, 3800); tone(1800, 0, 0.012, "square", 0.015); },
@@ -60,6 +61,10 @@ const theme: ThemeDef = {
     prompt: (name) => `${c(DIM)}${callsign(name).slice(0, 10)}${R} ${c(GREEN)}›${R} `,
     unknown: (raw, idea) => `Command "${raw}" not recognized.\nSuggest: ${idea}`,
     helpTitle: "PROCEDURES ON FILE:",
+    help: [["say <text>", "broadcast on the main display"], ["2 + 3", "flight computer arithmetic"],
+      ["count 10", "run a count"], ["roll", "random number, 1-6"], ["joke", "crew morale"],
+      ["name <callsign>", "set your callsign"], ["time", "local time"], ["theme", "switch console"],
+      ["sticker", "patch for the console"], ["clear", "clear the display"]],
     tada: (label) => `Console reconfigured: ${label}. All stations, go.`,
   },
   chrome: `

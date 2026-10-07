@@ -25,6 +25,7 @@ const theme: ThemeDef = {
     cyan: "#62c6dc", brightCyan: "#6fd3e8", white: "#aeb4c2", brightWhite: "#eef0f5",
   },
   voice: { id: "am_michael", speed: 1.05, chatty: false },
+  bigPictures: false,
   // header strip with one session tab, and a status bar; mount() keeps both live
   chrome: `
       <div id="studio-head">
@@ -59,6 +60,9 @@ const theme: ThemeDef = {
     prompt: (name) => `  ${ACC}${(name || "tinker").toLowerCase()}${R} ${DIM}~${R} ${OK}❯${R} `,
     unknown: (raw, idea) => `command not found: ${raw}\ntry \`${idea}\` or \`help\``,
     helpTitle: "commands",
+    help: [["say <text>", "print it big"], ["<a> + <b>", "arithmetic (+ - * /)"], ["count <n>", "count to n"],
+      ["roll", "d6"], ["joke", "a bad pun"], ["name <you>", "set your prompt name"], ["time", "local time"],
+      ["theme <name>", "switch theme"], ["sticker", "add a desktop sticker"], ["clear", "clear the screen"]],
     tada: (label) => `theme set: ${label.toLowerCase()}`,
   },
   mount(chrome) {
