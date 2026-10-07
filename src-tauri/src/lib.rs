@@ -24,17 +24,12 @@ fn spawn(state: State<PtyState>, cols: u16, rows: u16, on_data: Channel<Vec<u8>>
     });
     let mut cmd = CommandBuilder::new(&shell);
     cmd.env("TERM", "xterm-256color");
-    cmd.env("TERM_PROGRAM", "TermPaper");
-    if shell.ends_with("zsh") {
-        if let Ok(dir) = install_zsh_integration() {
-            if let Some(user) = std::env::var_os("ZDOTDIR") {
-                cmd.env("TERMPAPER_USER_ZDOTDIR", user);
-            }
-            cmd.env("ZDOTDIR", dir);
-        }
-    }
+    cmd.env("TERM_PROGRAM", "TinkerTerm");
+    // a dedicated folder so a kid's experiments don't land in $HOME (a starting point, not a jail)
     if let Some(home) = std::env::var_os("HOME") {
-        cmd.cwd(home);
+        let play = std::path::Path::new(&home).join("TinkerTerm Playground");
+        let _ = std::fs::create_dir_all(&play);
+        cmd.cwd(play);
     }
     let child = pair.slave.spawn_command(cmd).map_err(|e| e.to_string())?;
     drop(pair.slave);
@@ -76,13 +71,22 @@ fn resize(state: State<PtyState>, cols: u16, rows: u16) -> Result<(), String> {
     Ok(())
 }
 
-/// Write the bundled zsh shim to a per-user dir and return it for ZDOTDIR.
-fn install_zsh_integration() -> std::io::Result<std::path::PathBuf> {
-    let dir = std::env::temp_dir().join("termpaper-zsh");
-    std::fs::create_dir_all(&dir)?;
-    std::fs::write(dir.join(".zshenv"), include_str!("../shell/zsh/.zshenv"))?;
-    std::fs::write(dir.join(".zshrc"), include_str!("../shell/zsh/.zshrc"))?;
-    Ok(dir)
+/// End the grown-up shell (switching back to kid mode).
+#[tauri::command]
+fn kill(state: State<PtyState>) {
+    if let Some(mut p) = state.0.lock().unwrap().take() {
+        let _ = p.child.kill();
+    }
+}
+
+/// Read text aloud with the system voice; the fallback when the webview has no speechSynthesis.
+#[tauri::command]
+fn speak(text: String) {
+    let text: String = text.chars().take(200).collect();
+    #[cfg(target_os = "macos")]
+    let _ = std::process::Command::new("say").arg("--").arg(text).spawn();
+    #[cfg(not(target_os = "macos"))]
+    let _ = text;
 }
 
 /// Fade the macOS titlebar widgets (close/minimize/zoom) in or out.
@@ -121,7 +125,7 @@ pub fn run() {
             app.set_menu(tauri::menu::Menu::default(app.handle())?)?;
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![spawn, write, resize, traffic_lights])
+        .invoke_handler(tauri::generate_handler![spawn, write, resize, kill, speak, traffic_lights])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

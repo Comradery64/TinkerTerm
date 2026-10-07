@@ -3361,18 +3361,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "termpaper"
-version = "0.1.0"
-dependencies = [
- "objc2",
- "objc2-app-kit",
- "portable-pty",
- "serde",
- "tauri",
- "tauri-build",
-]
-
-[[package]]
 name = "thiserror"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3440,6 +3428,18 @@ checksum = "7e689342a48d2ea927c87ea50cabf8594854bf940e9310208848d680d668ed85"
 dependencies = [
  "num-conv",
  "time-core",
+]
+
+[[package]]
+name = "tinkerterm"
+version = "0.1.0"
+dependencies = [
+ "objc2",
+ "objc2-app-kit",
+ "portable-pty",
+ "serde",
+ "tauri",
+ "tauri-build",
 ]
 
 [[package]]
