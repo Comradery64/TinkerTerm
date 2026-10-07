@@ -1,0 +1,152 @@
+/* Brick Manual: a printed instruction-booklet page framed by snapped-together bricks. */
+/* Space Mono, SIL OFL 1.1 (public/themes/bricks/fonts/OFL.txt) */
+@font-face { font-family: "bricks-mono"; src: url("/themes/bricks/fonts/SpaceMono-Regular.ttf") format("truetype"); font-weight: 400; }
+@font-face { font-family: "bricks-mono"; src: url("/themes/bricks/fonts/SpaceMono-Bold.ttf") format("truetype"); font-weight: 700; }
+
+[data-theme="bricks"] { --ink: #1d2433; --paper: #fffdf7; --ui-font: "bricks-mono", "Menlo", monospace; }
+/* square-ish page: the bricks run right to the window edge */
+[data-theme="bricks"] #page { border-radius: 14px; background: #f6f2e7; }
+
+/* --- the brick frame: 34px courses top and bottom, 1x1 stacks down the sides --- */
+[data-theme="bricks"] .bricks-row { position: absolute; left: 0; right: 0; height: 34px; background-repeat: repeat-x; }
+[data-theme="bricks"] .bricks-row.top { top: 0; background-position: -42px 0; }
+[data-theme="bricks"] .bricks-row.bottom { bottom: 0; background-position: -182px 0; }
+[data-theme="bricks"] .bricks-col { position: absolute; top: 34px; bottom: 34px; width: 28px; background-repeat: repeat-y; }
+[data-theme="bricks"] .bricks-col.left { left: 0; }
+[data-theme="bricks"] .bricks-col.right { right: 0; background-position: 0 -90px; }
+/* static, so a soft drop shadow is safe: lifts the frame off the paper */
+[data-theme="bricks"] .bricks-row, [data-theme="bricks"] .bricks-col { filter: drop-shadow(0 2px 1.5px rgba(29, 36, 51, 0.28)); }
+/* printed trim line just inside the frame */
+[data-theme="bricks"] #chrome::before {
+  content: ""; position: absolute; inset: 44px 38px 44px 38px; border: 1.5px solid #d9d1bd; border-radius: 6px;
+}
+
+/* --- header: booklet title, clear of the traffic lights --- */
+[data-theme="bricks"] #bricks-title { position: absolute; top: 50px; left: 120px; display: flex; flex-direction: column; line-height: 1.1; color: var(--ink); }
+[data-theme="bricks"] #bricks-title b { font: 700 19px var(--ui-font); letter-spacing: 0.08em; }
+[data-theme="bricks"] #bricks-title span { font: 400 12px var(--ui-font); color: #6b7180; }
+
+/* --- the step number in the margin --- */
+[data-theme="bricks"] #term { top: 112px; left: 124px; right: 50px; }
+[data-theme="bricks"] #bricks-step {
+  position: absolute; top: 112px; left: 46px; width: 64px; height: 72px; box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: #fff; border: 3px solid var(--ink); border-radius: 12px; box-shadow: 4px 4px 0 #d8232a; color: var(--ink);
+}
+[data-theme="bricks"] #bricks-step small { font: 700 11px var(--ui-font); letter-spacing: 0.15em; margin-bottom: -4px; }
+[data-theme="bricks"] #bricks-step b { font: 700 36px var(--ui-font); line-height: 1.1; }
+[data-theme="bricks"] #bricks-step i {
+  display: none; position: absolute; top: -12px; right: -12px; width: 26px; height: 26px; border-radius: 50%;
+  font: 700 17px/26px var(--ui-font); text-align: center; color: #fff; border: 2px solid var(--ink);
+}
+[data-theme="bricks"] #bricks-step .ok { background: #1f9a4b; }
+[data-theme="bricks"] #bricks-step .no { background: #f37d1a; }
+[data-theme="bricks"] #bricks-step.ok .ok, [data-theme="bricks"] #bricks-step.no .no { display: block; animation: bricks-snap 0.3s cubic-bezier(.3,1.8,.5,1); }
+[data-theme="bricks"] #bricks-step.pop { animation: bricks-press 0.35s ease-out; }
+@keyframes bricks-press { 0% { transform: translateY(-14px); } 55% { transform: translateY(2px) scaleY(0.94); } 100% { transform: none; } }
+@keyframes bricks-snap { from { transform: scale(0); } }
+
+/* --- the parts callout, bottom strip left of the sidekick --- */
+[data-theme="bricks"] #bricks-parts {
+  position: absolute; left: 124px; bottom: 54px; height: 92px; min-width: 150px; box-sizing: border-box; padding: 6px 12px;
+  background: #fff; border: 2.5px solid var(--ink); border-radius: 8px; color: var(--ink); opacity: 0;
+}
+[data-theme="bricks"] #bricks-parts::after {   /* the little pointer toward the step it belongs to */
+  content: ""; position: absolute; top: 20px; left: -12px; width: 18px; height: 18px; background: #fff;
+  border-left: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink); transform: rotate(45deg);
+}
+[data-theme="bricks"] #bricks-parts small { display: block; font: 700 11px var(--ui-font); letter-spacing: 0.14em; color: #6b7180; }
+[data-theme="bricks"] #bricks-parts .list { display: flex; align-items: flex-end; gap: 14px; height: 64px; }
+[data-theme="bricks"] #bricks-parts .part { display: flex; align-items: flex-end; gap: 2px; animation: bricks-drop 0.35s cubic-bezier(.3,1.6,.5,1) both; }
+[data-theme="bricks"] #bricks-parts .part svg { display: block; max-height: 58px; width: auto; }
+[data-theme="bricks"] #bricks-parts em { font: 700 15px var(--ui-font); font-style: normal; }
+[data-theme="bricks"] #bricks-parts .missing { align-self: center; font: 700 14px var(--ui-font); color: #b85808; border: 2px dashed #b85808; border-radius: 6px; padding: 6px 10px; }
+[data-theme="bricks"] #bricks-parts.show { opacity: 1; }
+@keyframes bricks-drop { from { transform: translateY(-24px); opacity: 0; } }
+
+[data-theme="bricks"] #bricks-pageno {
+  position: absolute; left: 46px; bottom: 54px; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--ink); color: #fff; font: 700 18px/40px var(--ui-font); text-align: center;
+}
+[data-theme="bricks"] #bricks-pageno.turn { animation: bricks-turn 0.5s ease-out; }
+@keyframes bricks-turn { 50% { transform: rotateY(90deg); } }
+
+/* --- tools: three 1x2 bricks --- */
+[data-theme="bricks"] #tools { top: 50px; right: 50px; gap: 8px; }
+[data-theme="bricks"] #tools button {
+  position: relative; border: 2px solid #c4950a; border-radius: 4px; background: #f8c81c; padding: 4px 12px; margin-top: 6px;
+  box-shadow: inset 0 3px 0 #ffe36b, inset -4px 0 0 rgba(156, 110, 0, 0.25), 0 4px 0 #a57b06;
+}
+[data-theme="bricks"] #tools button::before {   /* two studs on top */
+  content: ""; position: absolute; top: -8px; left: 50%; width: 36px; height: 7px; transform: translateX(-50%);
+  background: linear-gradient(90deg, #f8c81c 0 12px, transparent 12px 24px, #f8c81c 24px);
+  border-radius: 2px 2px 0 0; box-shadow: 0 -1px 0 #c4950a;
+}
+[data-theme="bricks"] #tools button:nth-child(2) { background: #1061c9; border-color: #073f8a; box-shadow: inset 0 3px 0 #4b8ff0, 0 4px 0 #073f8a; }
+[data-theme="bricks"] #tools button:nth-child(2)::before { background: linear-gradient(90deg, #1061c9 0 12px, transparent 12px 24px, #1061c9 24px); box-shadow: 0 -1px 0 #073f8a; }
+[data-theme="bricks"] #tools button:nth-child(3) { background: #f4f4f0; border-color: #c9c8c0; box-shadow: inset 0 3px 0 #fff, 0 4px 0 #a9a8a0; }
+[data-theme="bricks"] #tools button:nth-child(3)::before { background: linear-gradient(90deg, #f4f4f0 0 12px, transparent 12px 24px, #f4f4f0 24px); box-shadow: 0 -1px 0 #c9c8c0; }
+[data-theme="bricks"] #tools button:active { transform: translateY(3px); }
+
+/* --- speech bubble as a printed callout --- */
+[data-theme="bricks"] #bubble { border: 2.5px solid var(--ink); border-radius: 8px; font: 700 15px var(--ui-font); box-shadow: 3px 3px 0 #1061c9; }
+[data-theme="bricks"] #bubble::after { right: -21px; }
+
+/* --- Bolt the builder --- */
+[data-theme="bricks"] #mascot { right: 50px; bottom: 40px; width: 112px; }
+[data-theme="bricks"] .arm, [data-theme="bricks"] .hat, [data-theme="bricks"] .head { transform-box: view-box; }
+[data-theme="bricks"] .arm.l { transform-origin: 39.5px 86px; }
+[data-theme="bricks"] .arm.r { transform-origin: 100.5px 86px; }
+[data-theme="bricks"] .head { transform-origin: 70px 74px; }
+[data-theme="bricks"] .hat { transform-origin: 70px 40px; }
+[data-theme="bricks"] .mouth, [data-theme="bricks"] .closed, [data-theme="bricks"] .q { display: none; }
+[data-theme="bricks"] .mouth.smile { display: inline; }
+[data-theme="bricks"] .q { font: 700 34px var(--ui-font); fill: #f37d1a; stroke: #1d2433; stroke-width: 1.5px; }
+[data-theme="bricks"] .eyes { animation: bricks-blink 5s infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes bricks-blink { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+[data-theme="bricks"] .chip { opacity: 0; }
+
+/* happy: hammering the little brick at his feet */
+[data-theme="bricks"] #mascot.happy .chip { opacity: 1; }
+[data-theme="bricks"] #mascot.happy .arm.r { animation: bricks-hammer 0.32s ease-in 4; }
+@keyframes bricks-hammer { 0%, 100% { transform: rotate(0); } 45% { transform: rotate(-120deg); } }
+[data-theme="bricks"] #mascot.happy .head { animation: bricks-nod 0.32s 4; }
+@keyframes bricks-nod { 50% { transform: rotate(-4deg); } }
+/* think: scratching under the hard hat */
+[data-theme="bricks"] #mascot.think .arm.l { animation: bricks-scratch 0.24s 0.2s ease-in-out infinite alternate; transform: rotate(-158deg); }
+@keyframes bricks-scratch { from { transform: rotate(-150deg); } to { transform: rotate(-164deg); } }
+[data-theme="bricks"] #mascot.think .head { transform: rotate(-7deg); }
+[data-theme="bricks"] #mascot.think .mouth.smile { display: none; } [data-theme="bricks"] #mascot.think .mouth.hmm { display: inline; }
+[data-theme="bricks"] #mascot.think .q { display: inline; }
+/* dance: side step with arms swinging */
+[data-theme="bricks"] #mascot.dance { animation: bricks-step 0.5s ease-in-out infinite; }
+[data-theme="bricks"] #mascot.dance .arm.l { animation: bricks-swing 0.5s infinite alternate; }
+[data-theme="bricks"] #mascot.dance .arm.r { animation: bricks-swing 0.5s infinite alternate-reverse; }
+@keyframes bricks-step { 25% { transform: translate(-8px, -10px) rotate(-6deg); } 50% { transform: none; } 75% { transform: translate(8px, -10px) rotate(6deg); } }
+@keyframes bricks-swing { from { transform: rotate(40deg); } to { transform: rotate(-40deg); } }
+/* wave */
+[data-theme="bricks"] #mascot.wave .arm.l { animation: bricks-wave 0.28s 6 alternate; }
+@keyframes bricks-wave { from { transform: rotate(120deg); } to { transform: rotate(160deg); } }
+/* wow: hat pops off its head */
+[data-theme="bricks"] #mascot.wow .mouth.smile { display: none; } [data-theme="bricks"] #mascot.wow .mouth.ooh { display: inline; }
+[data-theme="bricks"] #mascot.wow .hat { animation: bricks-hatpop 0.6s ease-out; }
+@keyframes bricks-hatpop { 40% { transform: translateY(-22px) rotate(-12deg); } 70% { transform: translateY(0); } }
+/* sleep: head drooped, eyes shut */
+[data-theme="bricks"] #mascot.sleep .eyes { display: none; } [data-theme="bricks"] #mascot.sleep .closed { display: inline; }
+[data-theme="bricks"] #mascot.sleep .head { transform: rotate(8deg) translateY(2px); }
+[data-theme="bricks"] #mascot.sleep .hat { transform: translateY(5px); }
+[data-theme="bricks"] #bricks-zzz { display: none; position: absolute; top: -6px; left: 0; font: 700 22px var(--ui-font); color: #1061c9; }
+[data-theme="bricks"] #bricks-zzz span { font-size: 0.8em; }
+[data-theme="bricks"] #mascot.sleep #bricks-zzz { display: block; animation: bricks-zz 3s ease-in-out infinite; }
+@keyframes bricks-zz { from { transform: translate(0, 10px); opacity: 0; } 50% { opacity: 1; } to { transform: translate(-12px, -22px); opacity: 0; } }
+
+/* --- narrow windows: slimmer margin, smaller step box --- */
+@media (max-width: 720px) {
+  [data-theme="bricks"] #term { left: 96px; right: 44px; }
+  [data-theme="bricks"] #bricks-step { left: 40px; width: 46px; height: 56px; }
+  [data-theme="bricks"] #bricks-step b { font-size: 26px; }
+  [data-theme="bricks"] #bricks-step small { font-size: 9px; }
+  [data-theme="bricks"] #bricks-parts { left: 96px; }
+  [data-theme="bricks"] #bricks-pageno { left: 40px; }
+  [data-theme="bricks"] #bricks-title span { display: none; }
+}
