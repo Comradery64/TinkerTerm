@@ -3,6 +3,7 @@
  * can put it anywhere on the screen and it rides along when the main window moves.
  * Drag to move, scroll to resize, double-click to peel off. Remembered between launches.
  */
+import { invoke } from "@tauri-apps/api/core";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
 import { sfx } from "./fx";
@@ -15,12 +16,12 @@ type Sticker = { id: number; e: string; dx: number; dy: number; s: number };
 const BASE = 110;
 const TAURI = "__TAURI_INTERNALS__" in window;
 
-// own key, not prefs: sticker windows write here too and must not clobber other settings
-const load = (): Sticker[] => { try { return JSON.parse(localStorage.getItem("stickers") ?? "[]"); } catch { return []; } };
-const save = (all: Sticker[]) => localStorage.setItem("stickers", JSON.stringify(all));
-function update(id: number, f: (s: Sticker) => void) {
-  const all = load(), st = all.find((s) => s.id === id);
-  if (st) { f(st); save(all); }
+// a file owned by the Rust side (see stickers_load in lib.rs); every sticker window shares it
+const load = async (): Promise<Sticker[]> => { try { return JSON.parse(await invoke<string>("stickers_load")); } catch { return []; } };
+const save = (all: Sticker[]) => invoke("stickers_save", { json: JSON.stringify(all) });
+async function update(id: number, f: (s: Sticker) => void) {
+  const all = await load(), st = all.find((s) => s.id === id);
+  if (st) { f(st); await save(all); }
 }
 
 async function open(st: Sticker) {
@@ -36,7 +37,13 @@ async function open(st: Sticker) {
 }
 
 /** Main window, at launch: put every saved sticker back. */
-export function restoreStickers() { if (TAURI) load().forEach(open); }
+export async function restoreStickers() {
+  if (!TAURI) return;
+  // stickers from before the file existed
+  const old = localStorage.getItem("stickers");
+  if (old) { await save([...(await load()), ...JSON.parse(old)]); localStorage.removeItem("stickers"); }
+  (await load()).forEach(open);
+}
 
 export async function addSticker(e: string) {
   if (!TAURI) return;
@@ -44,7 +51,7 @@ export async function addSticker(e: string) {
   const size = (await main.innerSize()).toLogical(await main.scaleFactor());
   const st: Sticker = { id: Date.now(), e, s: 1,
     dx: size.width * (0.3 + Math.random() * 0.4) - BASE / 2, dy: size.height * (0.3 + Math.random() * 0.4) - BASE / 2 };
-  save([...load(), st]);
+  await save([...(await load()), st]);
   open(st);
   sfx.boing();
 }
@@ -86,8 +93,8 @@ function dieCut(e: string, px: number): HTMLCanvasElement {
 }
 
 /** This webview is a sticker window: show the sticker and handle drag, resize, peel. */
-export function runSticker(id: number) {
-  const st = load().find((s) => s.id === id);
+export async function runSticker(id: number) {
+  const st = (await load()).find((s) => s.id === id);
   const win = getCurrentWindow();
   if (!st) { win.close(); return; }
   document.body.className = "sticker-window";
@@ -95,9 +102,8 @@ export function runSticker(id: number) {
 
   document.addEventListener("mousedown", (e) => { if (e.button === 0 && e.detail === 1) win.startDragging(); });
   document.addEventListener("dblclick", () => {
-    save(load().filter((s) => s.id !== id));
     sfx.back();
-    setTimeout(() => win.close(), 150);
+    load().then((all) => save(all.filter((s) => s.id !== id))).finally(() => win.close());
   });
   document.addEventListener("wheel", (e) => {
     st.s = Math.min(3, Math.max(0.5, st.s - e.deltaY * 0.002));

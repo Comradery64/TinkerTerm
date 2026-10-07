@@ -89,6 +89,29 @@ fn speak(text: String) {
     let _ = text;
 }
 
+/// Stickers live in a file, not localStorage: WebKit flushes localStorage lazily and a quick
+/// quit can lose the last sticker moves. Every sticker window reads and writes this one file.
+fn stickers_path(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
+    use tauri::Manager;
+    let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    Ok(dir.join("stickers.json"))
+}
+
+#[tauri::command]
+fn stickers_load(app: tauri::AppHandle) -> String {
+    stickers_path(&app).and_then(|p| std::fs::read_to_string(p).map_err(|e| e.to_string())).unwrap_or_else(|_| "[]".into())
+}
+
+#[tauri::command]
+fn stickers_save(app: tauri::AppHandle, json: String) -> Result<(), String> {
+    let path = stickers_path(&app)?;
+    // write-then-rename so a crash mid-write never leaves a half file
+    let tmp = path.with_extension("tmp");
+    std::fs::write(&tmp, json).map_err(|e| e.to_string())?;
+    std::fs::rename(tmp, path).map_err(|e| e.to_string())
+}
+
 /// Fade the macOS titlebar widgets (close/minimize/zoom) in or out.
 /// Animates their container (NSTitlebarView) rather than the buttons: AppKit
 /// resets button alpha on hover/focus changes, which made the fade snap back.
@@ -125,7 +148,7 @@ pub fn run() {
             app.set_menu(tauri::menu::Menu::default(app.handle())?)?;
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![spawn, write, resize, kill, speak, traffic_lights])
+        .invoke_handler(tauri::generate_handler![spawn, write, resize, kill, speak, stickers_load, stickers_save, traffic_lights])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
