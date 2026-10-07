@@ -1,0 +1,188 @@
+/* Retro Arcade: the window is the cabinet. Marquee on top, side art, CRT screen, control panel. */
+/* Press Start 2P and VT323: SIL Open Font License (public/themes/arcade/fonts/*-OFL.txt) */
+@font-face { font-family: "arcade-PressStart"; src: url("/themes/arcade/fonts/PressStart2P-Regular.ttf") format("truetype"); }
+@font-face { font-family: "arcade-VT323"; src: url("/themes/arcade/fonts/VT323-Regular.ttf") format("truetype"); }
+
+[data-theme="arcade"] {
+  --ink: #3cf0ff; --paper: #0b0a1e;
+  --ui-font: "arcade-PressStart", "Menlo", monospace;
+  --a-pink: #ff4fd8; --a-cyan: #3cf0ff; --a-yel: #ffe14a; --a-grn: #52ff7a;
+  /* the screen box, shared by bezel, overlays, HUD and text */
+  --a-side: 34px; --a-top: 74px; --a-panel: 142px;
+}
+[data-theme="arcade"] #page { border-radius: 16px; background: #120b28; }
+
+/* cabinet body with a neon T-molding flush to the window edge */
+[data-theme="arcade"] .arcade-cab {
+  position: absolute; inset: 0; border-radius: 16px;
+  background: linear-gradient(90deg, #1b0f3d, #120b28 12%, #120b28 88%, #1b0f3d);
+  box-shadow: inset 0 0 0 3px var(--a-pink), inset 0 0 0 6px #2a0f40;
+}
+[data-theme="arcade"] .arcade-side { position: absolute; top: var(--a-top); bottom: 10px; width: calc(var(--a-side) - 10px); opacity: 0.9; }
+[data-theme="arcade"] .arcade-side.l { left: 6px; } [data-theme="arcade"] .arcade-side.r { right: 6px; transform: scaleX(-1); }
+
+/* --- marquee --- */
+[data-theme="arcade"] .arcade-marquee {
+  position: absolute; top: 6px; left: 6px; right: 6px; height: calc(var(--a-top) - 12px); border-radius: 10px 10px 4px 4px;
+  display: grid; place-items: center; overflow: hidden; padding: 0 200px 0 100px; box-sizing: border-box;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 22px, rgba(255, 255, 255, 0.04) 22px 24px),
+    linear-gradient(180deg, #2b0a4a, #4a0f6a 50%, #2b0a4a);
+  border-bottom: 4px solid #0a0618;
+}
+/* chase lights along the marquee's bottom edge */
+[data-theme="arcade"] .arcade-marquee::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 3px; height: 4px;
+  background: radial-gradient(circle, var(--a-yel) 1.6px, transparent 2.2px) 0 0 / 14px 4px;
+  animation: arcade-chase 0.8s steps(2) infinite;
+}
+@keyframes arcade-chase { to { background-position: 14px 0; } }
+[data-theme="arcade"] .arcade-title {
+  font: clamp(14px, 3vw, 30px)/1 var(--ui-font); color: #fff4fd; letter-spacing: 3px;   /* centred between traffic lights and tools */
+  text-shadow: 0 0 4px var(--a-pink), 0 0 12px var(--a-pink), 3px 3px 0 #6a1fff;
+  animation: arcade-neon 6s steps(1) infinite;
+}
+@keyframes arcade-neon { 0%, 91%, 95%, 100% { opacity: 1; } 92%, 94% { opacity: 0.55; } }
+
+/* --- the CRT --- */
+[data-theme="arcade"] .arcade-bezel {
+  position: absolute; top: var(--a-top); left: var(--a-side); right: var(--a-side); bottom: var(--a-panel);
+  background: #050409; border-radius: 14px; padding: 8px; box-sizing: border-box;
+  box-shadow: inset 0 0 0 2px #2c2450, 0 0 0 3px #0a0618;
+}
+[data-theme="arcade"] .arcade-glass {
+  width: 100%; height: 100%; border-radius: 26px / 34px;   /* bulging tube corners */
+  background: radial-gradient(ellipse at 50% 45%, #0f1a34 0%, #08101f 60%, #03050b 100%);
+}
+[data-theme="arcade"] .arcade-scan, [data-theme="arcade"] .arcade-vignette {
+  position: absolute; top: calc(var(--a-top) + 8px); left: calc(var(--a-side) + 8px);
+  right: calc(var(--a-side) + 8px); bottom: calc(var(--a-panel) + 8px); border-radius: 26px / 34px; z-index: 2;
+}
+[data-theme="arcade"] .arcade-scan { background: repeating-linear-gradient(transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px); }
+[data-theme="arcade"] .arcade-vignette {
+  background: radial-gradient(ellipse at 50% 50%, transparent 62%, rgba(0, 0, 0, 0.55) 100%),
+              linear-gradient(160deg, rgba(255, 255, 255, 0.06), transparent 30%);   /* glass glare */
+}
+
+/* --- HUD --- */
+[data-theme="arcade"] .arcade-hud {
+  position: absolute; top: calc(var(--a-top) + 18px); left: calc(var(--a-side) + 30px); right: calc(var(--a-side) + 30px);
+  display: flex; align-items: baseline; gap: 8px; font: 11px/1 var(--ui-font); color: var(--a-pink); z-index: 1; white-space: nowrap;
+}
+[data-theme="arcade"] .arcade-hud b { font-weight: normal; color: #fff; margin-right: auto; padding-left: 4px; }
+[data-theme="arcade"] .arcade-hud b:last-child { margin-right: 0; }
+[data-theme="arcade"] .arcade-hud span { color: var(--a-cyan); }
+[data-theme="arcade"] .arcade-hud .arcade-1up { color: var(--a-yel); animation: arcade-blink 1s steps(1) infinite; }
+@keyframes arcade-blink { 50% { opacity: 0; } }
+[data-theme="arcade"] .arcade-score { display: inline-block; }
+[data-theme="arcade"] .arcade-score.bump { animation: arcade-bump 0.3s steps(3); color: var(--a-yel); }
+@keyframes arcade-bump { 33% { transform: translateY(-3px); } }
+
+[data-theme="arcade"] #page #term { top: calc(var(--a-top) + 44px); left: calc(var(--a-side) + 30px); right: calc(var(--a-side) + 30px); bottom: calc(var(--a-panel) + 22px); }
+[data-theme="arcade"] .xterm .xterm-rows { text-shadow: 0 0 6px rgba(80, 255, 200, 0.35); }   /* phosphor glow, static */
+[data-theme="arcade"] .xterm .xterm-cursor { border-radius: 0; }
+[data-theme="arcade"] #scroll-thumb { border-radius: 0; background: var(--a-cyan); }
+
+/* --- popups over the screen --- */
+[data-theme="arcade"] .arcade-pops { position: absolute; left: 0; right: 0; top: 38%; z-index: 3; text-align: center; }
+[data-theme="arcade"] .arcade-pop {
+  position: absolute; left: 0; right: 0; font: 22px/1 var(--ui-font); color: var(--a-yel);
+  text-shadow: 3px 3px 0 #b0128f; animation: arcade-rise 1.4s steps(14) forwards;
+}
+[data-theme="arcade"] .arcade-pop.pts { font-size: 16px; color: #fff; text-shadow: 2px 2px 0 #1a6fff; }
+[data-theme="arcade"] .arcade-pop.combo { font-size: 28px; color: var(--a-yel); }
+[data-theme="arcade"] .arcade-pop.miss { color: #ff5a6e; text-shadow: 3px 3px 0 #3a0010; }
+[data-theme="arcade"] .arcade-pop.hi, [data-theme="arcade"] .arcade-pop.credit { color: var(--a-grn); text-shadow: 3px 3px 0 #0a4a2a; animation-name: arcade-rise, arcade-blink; animation-duration: 1.4s, 0.2s; animation-iteration-count: 1, 7; }
+@keyframes arcade-rise { from { transform: translateY(20px) scale(0.6); opacity: 1; } 20% { transform: translateY(0) scale(1.1); } 80% { opacity: 1; } to { transform: translateY(-40px); opacity: 0; } }
+
+/* --- control panel --- */
+[data-theme="arcade"] .arcade-panel {
+  position: absolute; left: var(--a-side); right: var(--a-side); bottom: 6px; height: calc(var(--a-panel) - 16px);
+  background: linear-gradient(180deg, #2a1d5a, #1a1240 30%, #120b28); border-radius: 8px 8px 10px 10px;
+  border-top: 4px solid #3a2d7a; display: flex; align-items: center; gap: 34px; padding-left: 40px; box-sizing: border-box;
+}
+[data-theme="arcade"] .arcade-stick { position: relative; width: 56px; height: 56px; border-radius: 50%; background: radial-gradient(#0a0618 55%, #2c2450 57%); }
+[data-theme="arcade"] .arcade-stick i {
+  position: absolute; left: 21px; bottom: 26px; width: 14px; height: 44px; border-radius: 7px; background: linear-gradient(90deg, #888, #ddd, #777);
+  transform-origin: 50% 100%;
+}
+[data-theme="arcade"] .arcade-stick i::before { content: ""; position: absolute; top: -18px; left: -11px; width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff9ae8, var(--a-pink) 45%, #8a0f6e); }
+[data-theme="arcade"] .arcade-stick.push i { animation: arcade-tilt 0.22s steps(2); }
+@keyframes arcade-tilt { 50% { transform: rotate(14deg); } }
+[data-theme="arcade"] .arcade-btns { display: flex; gap: 12px; }
+[data-theme="arcade"] .arcade-btns i { width: 30px; height: 30px; border-radius: 50%; box-shadow: 0 5px 0 #0a0618; }
+[data-theme="arcade"] .arcade-btns i:nth-child(1) { background: var(--a-cyan); }
+[data-theme="arcade"] .arcade-btns i:nth-child(2) { background: var(--a-yel); margin-top: -14px; }
+[data-theme="arcade"] .arcade-btns i:nth-child(3) { background: var(--a-grn); }
+[data-theme="arcade"] .arcade-btns i.lit { background: #fff; transform: translateY(3px); box-shadow: 0 2px 0 #0a0618, 0 0 14px #fff; }
+[data-theme="arcade"] .arcade-coin {
+  font: 8px/1.5 var(--ui-font); color: #ff5a6e; text-align: center; padding: 6px 8px; border: 3px solid #4a3a8a; border-radius: 4px;
+  background: linear-gradient(90deg, transparent 46%, #000 46% 54%, transparent 54%) center 70% / 100% 10px no-repeat, #1a1240;
+  animation: arcade-blink 1.6s steps(1) infinite;
+}
+
+/* --- buttons, in the marquee --- */
+[data-theme="arcade"] #tools { top: 18px; right: 22px; gap: 8px; }
+[data-theme="arcade"] #tools button {
+  font: 14px var(--ui-font); color: #fff; background: #1a1240; border: 3px solid var(--a-cyan); border-radius: 4px;
+  box-shadow: 0 4px 0 #0a0618; padding: 3px 8px;
+}
+[data-theme="arcade"] #tools button:active { box-shadow: 0 1px 0 #0a0618; }
+
+/* --- Blip --- */
+[data-theme="arcade"] #mascot { right: calc(var(--a-side) + 26px); bottom: 20px; width: 104px; }
+[data-theme="arcade"] #sidekick svg { image-rendering: pixelated; }
+[data-theme="arcade"] #bubble {
+  font: 10px/1.6 var(--ui-font); color: #fff; background: #0b0a1e; border: 3px solid var(--a-cyan); border-radius: 0;
+  box-shadow: 4px 4px 0 var(--a-pink); max-width: 260px; transition: opacity 0.1s;
+}
+[data-theme="arcade"] #bubble::after { border-left-color: var(--a-cyan); right: -23px; }
+[data-theme="arcade"] .face, [data-theme="arcade"] .legs.b, [data-theme="arcade"] .arm.up { display: none; }
+[data-theme="arcade"] #mascot:not(.happy, .think, .wow, .sleep) .face.idle { display: inline; animation: arcade-on 4s steps(1) infinite; }
+[data-theme="arcade"] #mascot:not(.happy, .think, .wow, .sleep) .face.blink { display: inline; animation: arcade-off 4s steps(1) infinite; }
+@keyframes arcade-on { 94% { visibility: hidden; } 97% { visibility: visible; } }
+@keyframes arcade-off { 0% { visibility: hidden; } 94% { visibility: visible; } 97% { visibility: hidden; } }
+[data-theme="arcade"] #mascot { animation: arcade-idle 1.2s steps(1) infinite; }
+@keyframes arcade-idle { 50% { transform: translateY(-3px); } }
+
+[data-theme="arcade"] #mascot.happy .face.happy, [data-theme="arcade"] #mascot.think .face.think,
+[data-theme="arcade"] #mascot.wow .face.wow, [data-theme="arcade"] #mascot.sleep .face.sleep { display: inline; }
+[data-theme="arcade"] #mascot.happy { animation: arcade-jump 0.5s steps(4) 2; }
+@keyframes arcade-jump { 25% { transform: translateY(-18px); } 50% { transform: translateY(-26px); } 75% { transform: translateY(-12px); } }
+[data-theme="arcade"] #mascot.wow { animation: arcade-wow 0.6s steps(3); }
+@keyframes arcade-wow { 33% { transform: scale(1.2); } 66% { transform: scale(1.1); } }
+[data-theme="arcade"] #mascot.dance .face.happy { display: inline; }
+[data-theme="arcade"] #mascot.dance { animation: arcade-shuffle 0.5s steps(1) infinite; }
+@keyframes arcade-shuffle { 50% { transform: translateX(8px) translateY(-4px); } }
+[data-theme="arcade"] #mascot.dance .legs.a { animation: arcade-on2 0.5s steps(1) infinite; }
+[data-theme="arcade"] #mascot.dance .legs.b { display: inline; animation: arcade-off2 0.5s steps(1) infinite; }
+[data-theme="arcade"] #mascot.dance .arm.up, [data-theme="arcade"] #mascot.wave .arm.up { display: inline; animation: arcade-off2 0.3s steps(1) infinite; }
+[data-theme="arcade"] #mascot.dance .arm.down, [data-theme="arcade"] #mascot.wave .arm.down { animation: arcade-on2 0.3s steps(1) infinite; }
+@keyframes arcade-on2 { 50% { visibility: hidden; } }
+@keyframes arcade-off2 { 0% { visibility: hidden; } 50% { visibility: visible; } }
+[data-theme="arcade"] #mascot.sleep { animation: none; }
+[data-theme="arcade"] #mascot.sleep .bot rect:nth-child(4) { fill: #050a16; }
+[data-theme="arcade"] #arcade-think, [data-theme="arcade"] #arcade-zzz {
+  display: none; position: absolute; top: -18px; right: -6px; font: 18px var(--ui-font); color: var(--a-yel);
+}
+[data-theme="arcade"] #mascot.think #arcade-think { display: block; animation: arcade-blink 0.5s steps(1) infinite; }
+[data-theme="arcade"] #arcade-zzz { color: var(--a-cyan); font-size: 14px; }
+[data-theme="arcade"] #arcade-zzz span { font-size: 10px; }
+[data-theme="arcade"] #mascot.sleep #arcade-zzz { display: block; animation: arcade-zz 2s steps(4) infinite; }
+@keyframes arcade-zz { from { transform: translate(0, 8px); } to { transform: translate(12px, -16px); } }
+
+/* narrow cabinets: smaller marquee words and panel art */
+@media (max-width: 720px) {
+  [data-theme="arcade"] { --a-side: 22px; }
+  [data-theme="arcade"] .arcade-coin, [data-theme="arcade"] .arcade-btns i:nth-child(3) { display: none; }
+  [data-theme="arcade"] .arcade-panel { gap: 20px; padding-left: 24px; }
+  [data-theme="arcade"] .arcade-hud { font-size: 9px; gap: 4px; }
+}
+
+/* short windows: a slimmer control panel so the screen keeps its rows */
+@media (max-height: 560px) {
+  [data-theme="arcade"] { --a-panel: 96px; --a-top: 62px; }
+  [data-theme="arcade"] #mascot { width: 72px; bottom: 14px; }
+  [data-theme="arcade"] .arcade-stick { transform: scale(0.7); }
+  [data-theme="arcade"] #tools { top: 12px; }
+}
