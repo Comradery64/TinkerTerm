@@ -1,0 +1,97 @@
+/* Pro Studio: a refined dark editor terminal. Restraint first: hairlines, one accent, quiet motion. */
+/* JetBrains Mono, SIL OFL 1.1 (public/themes/studio/fonts/JetBrainsMono-OFL.txt) */
+@font-face { font-family: "studio-mono"; src: url("/themes/studio/fonts/JetBrainsMono-Regular.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "studio-mono"; src: url("/themes/studio/fonts/JetBrainsMono-Bold.woff2") format("woff2"); font-weight: 700; }
+
+[data-theme="studio"] {
+  --ink: #d6dae3; --paper: #161922; --ui-font: "studio-mono", ui-monospace, Menlo, monospace;
+  --studio-accent: #8b9cff; --studio-line: rgba(255, 255, 255, 0.07); --studio-dim: #6b7385;
+}
+[data-theme="studio"] #page {
+  border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09);
+  background: radial-gradient(120% 70% at 85% -10%, rgba(139, 156, 255, 0.10), transparent 60%), #0d0f14;
+}
+
+/* --- header strip: one session tab, sitting right of the traffic lights --- */
+[data-theme="studio"] header { height: 40px; }
+[data-theme="studio"] #studio-head {
+  position: absolute; top: 0; left: 0; right: 0; height: 40px; display: flex; align-items: flex-end; gap: 6px;
+  padding-left: 112px; background: #0a0c10; border-bottom: 1px solid var(--studio-line); font: 12.5px var(--ui-font);
+}
+[data-theme="studio"] #studio-tab {
+  position: relative; display: flex; align-items: center; gap: 7px; height: 30px; padding: 0 16px 0 12px; margin-bottom: -1px;
+  background: #0d0f14; border: 1px solid var(--studio-line); border-bottom-color: #0d0f14; border-radius: 8px 8px 0 0; color: #c3c8d4;
+}
+[data-theme="studio"] #studio-tab::before {   /* accent hairline marks the active tab */
+  content: ""; position: absolute; top: -1px; left: 10px; right: 10px; height: 2px; border-radius: 2px; background: var(--studio-accent);
+}
+[data-theme="studio"] #studio-tab .dot { width: 7px; height: 7px; border-radius: 50%; background: #3a4052; transition: background 0.25s; }
+[data-theme="studio"] #studio-tab.dirty .dot { background: var(--studio-accent); }
+[data-theme="studio"] #studio-tab.busy .dot { background: #e8c487; animation: studio-pulse 0.7s ease-in-out infinite alternate; }
+[data-theme="studio"] #studio-tab .sep, [data-theme="studio"] #studio-tab .proc { color: var(--studio-dim); }
+[data-theme="studio"] #studio-tab.busy .proc { color: #e8c487; }
+[data-theme="studio"] #studio-newtab { height: 30px; line-height: 28px; padding: 0 8px; color: #464c5c; font-size: 15px; }
+@keyframes studio-pulse { from { opacity: 0.35; } }
+
+/* --- the text area: full width, between the header and the status bar --- */
+[data-theme="studio"] #term, [data-theme="studio"]:not(.real) #term { top: 56px; left: 26px; right: 26px; bottom: 40px; }
+[data-theme="studio"] .xterm .xterm-cursor { border-radius: 1px; }
+
+/* --- status bar --- */
+[data-theme="studio"] #studio-status {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 26px; display: flex; align-items: center; gap: 14px;
+  padding: 0 14px; background: #0a0c10; border-top: 1px solid var(--studio-line); color: var(--studio-dim); font: 11.5px var(--ui-font);
+}
+[data-theme="studio"] #studio-status .grow { flex: 1; }
+[data-theme="studio"] #studio-status .pill {
+  display: flex; align-items: center; gap: 5px; padding: 1px 8px 1px 6px; border-radius: 999px;
+  background: rgba(139, 156, 255, 0.14); color: #b6c0ff;
+}
+[data-theme="studio"] #studio-status .pill svg { width: 11px; height: 11px; fill: currentColor; stroke: currentColor; stroke-width: 1.4; }
+[data-theme="studio"] #studio-status .pill svg path { fill: none; }
+[data-theme="studio"] #studio-status .exit { transition: color 0.2s; }
+[data-theme="studio"] #studio-status .exit.ok { color: #7fd4a0; }
+[data-theme="studio"] #studio-status .exit.err { color: #f2788f; }
+[data-theme="studio"] #studio-status .theme { color: #9aa2b3; }
+
+/* --- tools: quiet ghost icons in the header, right side --- */
+[data-theme="studio"] #tools { top: 7px; right: 10px; gap: 2px; }
+[data-theme="studio"] #tools button {
+  font-size: 13px !important; border: 0; border-radius: 6px; background: transparent; box-shadow: none; padding: 3px 7px;
+  opacity: 0.55; filter: grayscale(1); transition: opacity 0.15s, background 0.15s;
+}
+[data-theme="studio"] #tools button:hover { opacity: 1; filter: none; background: rgba(255, 255, 255, 0.07); }
+[data-theme="studio"] #tools button:active { transform: none; box-shadow: none; background: rgba(255, 255, 255, 0.12); }
+[data-theme="studio"] #realbadge { top: 8px; padding: 2px 10px; border-radius: 6px; font-size: 12px; background: #f2788f; color: #0d0f14; }
+
+/* --- no mascot: the bubble becomes a toast above the status bar --- */
+[data-theme="studio"] #mascot { right: 16px; bottom: 40px; width: 0; height: 0; }
+[data-theme="studio"] #bubble {
+  right: 0; bottom: 0; max-width: 300px; border: 1px solid rgba(255, 255, 255, 0.1); border-left: 2px solid var(--studio-accent);
+  border-radius: 8px; padding: 9px 14px; background: #171a23; color: #d6dae3; font: 12.5px var(--ui-font);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); transform: translateY(8px); transform-origin: 100% 100%;
+  transition: opacity 0.2s, transform 0.25s cubic-bezier(.2, .8, .2, 1);
+}
+[data-theme="studio"] #bubble::after { display: none; }
+[data-theme="studio"] #bubble.on { transform: none; }
+
+/* --- `say`: a typographic moment, not bouncing letters --- */
+[data-theme="studio"] .bigword:not(.pic) {
+  top: 38%; font: 700 clamp(48px, 11vw, 112px) var(--ui-font); letter-spacing: -0.04em; -webkit-text-stroke: 0;
+  white-space: normal; padding: 0 40px;
+}
+[data-theme="studio"] .bigword:not(.pic) span {
+  color: #eef0f5 !important; animation: studio-rise 0.5s cubic-bezier(.2, .8, .2, 1) both;
+}
+[data-theme="studio"] .bigword:not(.pic) span:last-child { color: var(--studio-accent) !important; }
+[data-theme="studio"] .bigword:not(.pic)::after {   /* a caret that follows the word */
+  content: ""; display: inline-block; width: 0.08em; height: 0.9em; margin-left: 0.06em; vertical-align: -0.08em;
+  background: var(--studio-accent); animation: studio-caret 1s steps(1) infinite;
+}
+[data-theme="studio"] .bigword.bye { transform: translateY(-14px); transition-duration: 0.45s; }
+@keyframes studio-rise { from { opacity: 0; transform: translateY(0.25em); } }
+@keyframes studio-caret { 50% { opacity: 0; } }
+
+/* confetti and particles: keep them small and sparse-looking */
+[data-theme="studio"] .bit { font-size: 13px; opacity: 0.8; }
+[data-theme="studio"] .bit.big { font-size: 16px; }
