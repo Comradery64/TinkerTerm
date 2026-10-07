@@ -1,0 +1,184 @@
+/* Toy Workshop: a glossy molded-plastic activity board. Sono: OFL (public/themes/workshop/fonts/Sono-OFL.txt) */
+@font-face { font-family: "workshop-Sono"; src: url("/themes/workshop/fonts/Sono.ttf") format("truetype"); font-weight: 200 800; }
+
+[data-theme="workshop"] {
+  --ink: #22304a; --paper: #fffdf4;
+  --ui-font: "workshop-Sono", "Comic Mono", ui-rounded, sans-serif;
+}
+[data-theme="workshop"] .xterm { font-variation-settings: "MONO" 1; }
+
+/* the red outer shell: molded edge highlight on top, a darker lip underneath */
+[data-theme="workshop"] #page {
+  background: radial-gradient(120% 70% at 30% 0%, #ff6b6b 0%, #e63946 45%, #c1272f 100%);
+  box-shadow: inset 0 5px 0 rgba(255,255,255,.35), inset 0 -8px 0 rgba(90,0,10,.35), inset 0 0 0 2px rgba(120,0,10,.4);
+}
+[data-theme="workshop"].real #page { background: #f4f6ea; box-shadow: none; }
+
+/* the yellow board set into the shell */
+[data-theme="workshop"] #ws-board {
+  position: absolute; inset: 14px; border-radius: 36px;
+  background: radial-gradient(90% 60% at 25% 0%, #ffe680 0%, #ffd23f 50%, #f2b705 100%);
+  box-shadow: 0 3px 0 rgba(255,255,255,.4), inset 0 4px 0 rgba(255,255,255,.55), inset 0 -6px 0 rgba(160,100,0,.35), 0 -2px 0 rgba(120,0,10,.35);
+}
+/* recessed screen: a blue molded frame around a pale drawing-board panel */
+[data-theme="workshop"] #ws-screen {
+  position: absolute; top: 94px; left: 30px; right: 30px; bottom: 160px; border-radius: 28px;
+  background: #f4f6ea;
+  border: 10px solid #2f80ed;
+  box-shadow: 0 4px 0 #16509c, 0 -3px 0 rgba(255,255,255,.6), inset 0 6px 10px rgba(20,40,80,.28), inset 0 0 0 3px #16509c;
+}
+[data-theme="workshop"] #ws-screen::before {   /* faint dot grid, like a magnetic drawing board */
+  content: ""; position: absolute; inset: 0; border-radius: 18px;
+  background: radial-gradient(circle, rgba(34,48,74,.07) 1.4px, transparent 1.6px) 0 0 / 14px 14px;
+}
+[data-theme="workshop"] #term { top: 114px; left: 52px; right: 52px; bottom: 50px; }
+[data-theme="workshop"]:not(.real) #term { bottom: 180px; }
+
+[data-theme="workshop"] .ws-screw { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 15%, #c9cfdb 35%, #8a93a6 100%); box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+[data-theme="workshop"] .ws-screw::after { content: ""; position: absolute; left: 3px; right: 3px; top: 6px; height: 2px; background: #5b6478; transform: rotate(35deg); }
+[data-theme="workshop"] .s3 { bottom: 24px; left: 26px; } [data-theme="workshop"] .s4 { bottom: 24px; right: 26px; }
+
+/* --- gears: turned from mount() on every key --- */
+[data-theme="workshop"] #ws-gears { position: absolute; top: 12px; left: 118px; width: 170px; height: 80px; }
+[data-theme="workshop"] #ws-gears .g { position: absolute; transition: transform .22s cubic-bezier(.3,1.5,.5,1); }
+[data-theme="workshop"] #ws-gears svg { display: block; width: 100%; }
+[data-theme="workshop"] .g1 { width: 66px; left: 0; top: 8px; }
+[data-theme="workshop"] .g2 { width: 46px; left: 60px; top: 0; }
+[data-theme="workshop"] .g3 { width: 56px; left: 98px; top: 22px; }
+
+/* --- light bulb: lights on success, wobbles on a word it doesn't know --- */
+[data-theme="workshop"] #ws-bulb { position: absolute; top: 10px; left: 292px; width: 44px; transform-origin: 50% 100%; }
+[data-theme="workshop"] #ws-bulb svg { position: relative; display: block; width: 100%; }
+[data-theme="workshop"] #ws-bulb .glass { fill: #eef3fb; transition: fill .2s; }
+[data-theme="workshop"] #ws-bulb .glow { position: absolute; left: -30px; top: -26px; width: 104px; height: 104px; border-radius: 50%; background: radial-gradient(circle, rgba(255,240,140,.95) 0%, rgba(255,210,63,.5) 40%, transparent 70%); opacity: 0; transition: opacity .25s; }
+[data-theme="workshop"] #ws-bulb.lit .glass { fill: #fff27a; }
+[data-theme="workshop"] #ws-bulb.lit .wire { stroke: #ff8c1a; }
+[data-theme="workshop"] #ws-bulb.lit .glow { opacity: 1; }
+[data-theme="workshop"] #ws-bulb.wobble { animation: workshop-wobble .7s ease-in-out; }
+@keyframes workshop-wobble { 20% { transform: rotate(-14deg); } 40% { transform: rotate(11deg); } 60% { transform: rotate(-7deg); } 80% { transform: rotate(4deg); } }
+
+/* --- the dial: spins a click or more on Enter --- */
+[data-theme="workshop"] #ws-dial { position: absolute; left: 34px; bottom: 30px; width: 100px; height: 100px; }
+[data-theme="workshop"] #ws-dial .face {
+  position: absolute; inset: 10px; border-radius: 50%; transition: transform .6s cubic-bezier(.3,1.4,.5,1);
+  background: radial-gradient(circle at 35% 30%, #6fe08a, #2dbf4e 45%, #1d8a37);
+  box-shadow: 0 5px 0 #146a2a, inset 0 3px 0 rgba(255,255,255,.5), 0 8px 10px rgba(0,0,0,.18);
+}
+[data-theme="workshop"] #ws-dial .face::before {   /* grip ridges round the rim */
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: repeating-conic-gradient(rgba(0,0,0,.14) 0 6deg, transparent 6deg 18deg);
+  -webkit-mask: radial-gradient(circle, transparent 62%, #000 64%); mask: radial-gradient(circle, transparent 62%, #000 64%);
+}
+[data-theme="workshop"] #ws-dial .pointer { position: absolute; left: 50%; top: 8px; width: 12px; height: 30px; margin-left: -6px; border-radius: 6px; background: #fffdf4; box-shadow: 0 2px 0 rgba(0,0,0,.2); }
+[data-theme="workshop"] #ws-dial .n { position: absolute; font: 800 13px var(--ui-font); color: #8c1c26; }
+[data-theme="workshop"] .n1 { top: -8px; left: 46px; } [data-theme="workshop"] .n2 { right: -6px; top: 42px; }
+[data-theme="workshop"] .n3 { bottom: -8px; left: 46px; } [data-theme="workshop"] .n4 { left: -6px; top: 42px; }
+
+/* --- the big squishy button --- */
+[data-theme="workshop"] #ws-button {
+  position: absolute; left: 150px; bottom: 34px; width: 90px; height: 90px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #3a4766, #1c2438); box-shadow: inset 0 4px 6px rgba(0,0,0,.5), 0 2px 0 rgba(255,255,255,.5);
+}
+[data-theme="workshop"] #ws-button .cap {
+  position: absolute; inset: 8px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 30%, #fff 0 6%, #7fb2ff 14%, #2f80ed 45%, #16509c 100%);
+  box-shadow: 0 7px 0 #0f3b78, 0 10px 8px rgba(0,0,0,.25);
+  transform: translateY(-7px);
+}
+[data-theme="workshop"] #ws-button.squish .cap { animation: workshop-squish .45s cubic-bezier(.3,1.6,.5,1); }
+@keyframes workshop-squish { 0% { transform: translateY(-7px); } 25% { transform: translateY(0) scale(1.1, .86); box-shadow: 0 0 0 #0f3b78; } }
+
+/* --- abacus: beads slide over as things work --- */
+[data-theme="workshop"] #ws-abacus {
+  position: absolute; left: 266px; right: 206px; bottom: 34px; height: 88px; max-width: 360px;
+  border: 8px solid #2dbf4e; border-radius: 16px; background: rgba(255,255,255,.25);
+  box-shadow: 0 4px 0 #1d8a37, inset 0 2px 0 rgba(0,0,0,.08);
+  display: grid; align-content: space-evenly;
+}
+[data-theme="workshop"] #ws-abacus .rod { position: relative; height: 24px; margin: 0 4px; background: linear-gradient(#c9cfdb, #8a93a6) 0 50% / 100% 4px no-repeat; }
+[data-theme="workshop"] #ws-abacus i {
+  position: absolute; top: 0; width: 18px; height: 24px; border-radius: 9px; left: calc(var(--i) * 18px);
+  background: radial-gradient(circle at 40% 30%, rgba(255,255,255,.75) 0 12%, transparent 40%), var(--c);
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,.2);
+  transition: left .45s cubic-bezier(.3,1.5,.5,1);
+}
+[data-theme="workshop"] #ws-abacus i.over { left: calc(100% - (10 - var(--i)) * 18px); }
+
+/* --- tools: three round plastic buttons --- */
+[data-theme="workshop"] #tools { top: 24px; right: 36px; gap: 12px; }
+[data-theme="workshop"] #tools button {
+  width: 50px; height: 50px; padding: 0; border: none; border-radius: 50%; font-size: 22px;
+  background: radial-gradient(circle at 38% 30%, #fff 0 8%, var(--b1) 30%, var(--b2) 100%);
+  box-shadow: 0 5px 0 var(--b3), 0 7px 6px rgba(0,0,0,.2);
+}
+[data-theme="workshop"] #tools button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--b3); }
+[data-theme="workshop"] #stick { --b1: #5aa0ff; --b2: #2f80ed; --b3: #16509c; }
+[data-theme="workshop"] #mute { --b1: #6fe08a; --b2: #2dbf4e; --b3: #1d8a37; }
+[data-theme="workshop"] #grownup { --b1: #f2f4f8; --b2: #c9cfdb; --b3: #8a93a6; width: 40px !important; height: 40px !important; margin-top: 5px; font-size: 16px !important; }
+
+[data-theme="workshop"] #bubble { border-radius: 20px; border-width: 4px; box-shadow: 0 4px 0 var(--ink); font-size: 18px; }
+[data-theme="workshop"] .bigword:not(.pic) { font-weight: 800; -webkit-text-stroke: 5px #22304a; }
+
+/* narrow windows: the abacus steps aside, the bulb tucks in */
+@media (max-width: 720px) {
+  [data-theme="workshop"] #ws-abacus { display: none; }
+  [data-theme="workshop"] #ws-bulb { left: 280px; }
+}
+@media (max-width: 600px) { [data-theme="workshop"] #ws-gears .g3 { display: none; } [data-theme="workshop"] #ws-bulb { left: 236px; } }
+
+/* short windows: a slimmer control strip so the screen keeps more lines */
+@media (max-height: 520px) {
+  [data-theme="workshop"] #ws-screen { bottom: 126px; }
+  [data-theme="workshop"]:not(.real) #term { bottom: 146px; }
+  [data-theme="workshop"] #ws-dial, [data-theme="workshop"] #ws-button { bottom: 18px; zoom: .8; }
+  [data-theme="workshop"] #ws-abacus { bottom: 22px; height: 76px; }
+  [data-theme="workshop"] #mascot { width: 92px; bottom: 16px; }
+}
+
+/* --- Bolt the wind-up robot --- */
+[data-theme="workshop"] #mascot { right: 34px; bottom: 22px; width: 118px; animation: workshop-tick 1.2s steps(2) infinite; }
+@keyframes workshop-tick { 50% { transform: translateY(-2px) rotate(1.5deg); } }
+[data-theme="workshop"] #sidekick svg { overflow: visible; }
+[data-theme="workshop"] .key { transform-box: fill-box; transform-origin: 30% 50%; animation: workshop-wind 3s linear infinite; }
+@keyframes workshop-wind { to { transform: rotateX(360deg); } }
+[data-theme="workshop"] .head { transform-box: fill-box; transform-origin: 50% 100%; }
+[data-theme="workshop"] .arm { transform-box: view-box; }
+[data-theme="workshop"] .arm.l { transform-origin: 30px 92px; } [data-theme="workshop"] .arm.r { transform-origin: 120px 92px; }
+[data-theme="workshop"] .mouth, [data-theme="workshop"] .closed { display: none; }
+[data-theme="workshop"] .mouth.smile { display: inline; }
+[data-theme="workshop"] .eyes { animation: workshop-blink 5s infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+@keyframes workshop-blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+[data-theme="workshop"] .led { animation: workshop-led 1.5s steps(1) infinite; }
+[data-theme="workshop"] .led.b { animation-delay: .5s; } [data-theme="workshop"] .led.c { animation-delay: 1s; }
+@keyframes workshop-led { 50% { opacity: .3; } }
+
+[data-theme="workshop"] #mascot.happy { animation: workshop-hop .45s ease-out 2; }
+[data-theme="workshop"] #mascot.happy .key, [data-theme="workshop"] #mascot.dance .key { animation-duration: .35s; }
+@keyframes workshop-hop { 40% { transform: translateY(-30px); } 75% { transform: translateY(0) scale(1.08, .9); } }
+[data-theme="workshop"] #mascot.wow { animation: workshop-pop .6s cubic-bezier(.3,1.6,.5,1); }
+[data-theme="workshop"] #mascot.wow .mouth.smile { display: none; } [data-theme="workshop"] #mascot.wow .mouth.ooh { display: inline; }
+[data-theme="workshop"] #mascot.wow .head { animation: workshop-spring .6s ease-out; }
+[data-theme="workshop"] #mascot.wow .ant { fill: #ffd23f; }
+@keyframes workshop-pop { 40% { transform: scale(1.15); } }
+@keyframes workshop-spring { 30% { transform: translateY(-14px); } 60% { transform: translateY(3px); } }
+[data-theme="workshop"] #mascot.think .head { animation: workshop-tilt 1.6s ease-in-out; }
+[data-theme="workshop"] #mascot.think .mouth.smile { display: none; } [data-theme="workshop"] #mascot.think .mouth.hmm { display: inline; }
+[data-theme="workshop"] #mascot.think .pupil { transform: translate(3px, -4px); }
+[data-theme="workshop"] #mascot.think .ant { animation: workshop-led .3s steps(1) 5; }
+[data-theme="workshop"] #mascot.think .key { animation-play-state: paused; }
+@keyframes workshop-tilt { 30%, 70% { transform: rotate(-12deg); } }
+[data-theme="workshop"] #mascot.dance { animation: workshop-shuffle .5s steps(4) infinite; }
+[data-theme="workshop"] #mascot.dance .arm.l { animation: workshop-arm .25s infinite alternate; }
+[data-theme="workshop"] #mascot.dance .arm.r { animation: workshop-arm-r .25s infinite alternate-reverse; }
+@keyframes workshop-shuffle { 25% { transform: translateX(-8px) rotate(-6deg); } 75% { transform: translateX(8px) rotate(6deg); } }
+@keyframes workshop-arm { to { transform: rotate(50deg); } }
+@keyframes workshop-arm-r { to { transform: rotate(-50deg); } }
+[data-theme="workshop"] #mascot.wave .arm.r { animation: workshop-arm-r .22s 6 alternate; }
+[data-theme="workshop"] #mascot.sleep { animation: none; }
+[data-theme="workshop"] #mascot.sleep .key, [data-theme="workshop"] #mascot.sleep .led { animation: none; opacity: .5; }
+[data-theme="workshop"] #mascot.sleep .head { transform: rotate(8deg) translateY(4px); }
+[data-theme="workshop"] #mascot.sleep .eyes { display: none; } [data-theme="workshop"] #mascot.sleep .closed { display: inline; }
+[data-theme="workshop"] #ws-zzz { display: none; position: absolute; top: -14px; right: 4px; font: 800 24px var(--ui-font); color: #16509c; }
+[data-theme="workshop"] #ws-zzz span { font-size: .8em; }
+[data-theme="workshop"] #mascot.sleep #ws-zzz { display: block; animation: workshop-zzz 3s ease-in-out infinite; }
+@keyframes workshop-zzz { from { transform: translate(0, 10px); opacity: 0; } 50% { opacity: 1; } to { transform: translate(14px, -24px); opacity: 0; } }
