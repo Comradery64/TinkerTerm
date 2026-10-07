@@ -6,7 +6,6 @@ export const prefs = {
   wobble: true,      // crayon-edge filter on the text
   name: "",          // the kid's name, from `name Sam`
   theme: "crayon",
-  stickers: [] as import("./stickers").Sticker[],
 };
 
 try { Object.assign(prefs, JSON.parse(localStorage.getItem("prefs") ?? "{}")); }

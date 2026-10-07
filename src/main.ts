@@ -10,7 +10,7 @@ import { burst, nap, sfx, mascot, say } from "./fx";
 import { remapSgr } from "./sgr";
 import { overlayScrollbar } from "./scrollbar";
 import { themeFor } from "./themes";
-import { drawStickers, toggleTray } from "./stickers";
+import { restoreStickers, runSticker, toggleTray } from "./stickers";
 
 const TAURI = "__TAURI_INTERNALS__" in window;
 const term = new Terminal({
@@ -36,6 +36,8 @@ const toy = new ToyShell(term, grownUp, setTheme);
 let ptyReady = false;
 
 async function main() {
+  const sticker = new URLSearchParams(location.search).get("sticker");
+  if (sticker) return runSticker(+sticker);   // this webview is one sticker window
   await setTheme(prefs.theme);
   term.open(el);
   scrollbar.refresh();
@@ -54,7 +56,7 @@ async function main() {
   document.getElementById("grownup")!.addEventListener("click", grownUp);
   document.getElementById("mute")!.addEventListener("click", toggleMute);
   document.getElementById("stick")!.addEventListener("click", () => toggleTray(() => term.focus()));
-  drawStickers();
+  restoreStickers();
   document.getElementById("mascot")!.addEventListener("click", () => {
     sfx.boing(); mascot("happy"); say("Hee hee, that tickles!", 2000);
   });

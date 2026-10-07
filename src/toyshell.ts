@@ -205,7 +205,7 @@ export class ToyShell {
       case "sticker": case "stickers": {
         const e = THINGS[arg.toLowerCase()]?.[0] ?? pick(STICKERS);
         addSticker(e); mascot("happy");
-        return this.reply(`Stick! ${e}  Drag it anywhere. Drop it on the bin to peel it off.`, pick(CRAYONS), "Stick!");
+        return this.reply(`Stick! ${e}  Drag it anywhere! Double-click to peel it off.`, pick(CRAYONS), "Stick!");
       }
       case "grownup": case "parent":
         return this.onGrownUp();

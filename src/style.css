@@ -10,13 +10,12 @@
   --ink: #3b2a6b;
   --pink: #ff5cc8;
   --round: "Comic Mono", "Comic Sans MS", "Chalkboard SE", sans-serif;
-  --bleed: 28px;   /* transparent window margin stickers can hang into */
 }
 
 html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; font-family: var(--round); color: var(--ink); }
 
 #page {
-  position: absolute; inset: var(--bleed);
+  position: absolute; inset: 0;
   /* the window itself is transparent: this is the app's corner, concentric with the crayon border */
   border-radius: 48px; overflow: hidden;
   /* dotted drawing paper */
@@ -136,21 +135,6 @@ body:not(.real) #term { right: 240px; }      /* room for Tinker */
 .bigword.pic { filter: none; -webkit-text-stroke: 0; font-size: 160px; }
 
 /* --- stickers --- */
-#bleed { position: fixed; inset: 0; }
-#stickers { position: fixed; inset: 0; pointer-events: none; z-index: 8; }
-.sticker {
-  position: absolute; font-size: 72px; line-height: 1; cursor: grab; pointer-events: auto; user-select: none;
-  filter: url(#diecut);   /* white die-cut edge, like a real sticker */
-}
-.sticker.held { cursor: grabbing; }
-.sticker.slap { animation: slap 0.35s cubic-bezier(.3,1.6,.5,1); }
-@keyframes slap { from { scale: 2.2; opacity: 0; } }
-#bin {
-  position: fixed; left: 50px; bottom: 50px; font-size: 54px; z-index: 9; pointer-events: none;
-  opacity: 0; transform: scale(0.6); transition: opacity 0.2s, transform 0.2s;
-}
-#bin.on { opacity: 0.8; transform: scale(1); }
-#bin.hot { opacity: 1; transform: scale(1.35) rotate(-8deg); }
 #tray {
   position: absolute; top: 96px; right: 48px; z-index: 6; display: grid; grid-template-columns: repeat(6, 52px); gap: 6px;
   background: #fff; border: 4px solid var(--ink); border-radius: 22px; padding: 10px; box-shadow: 0 6px 0 var(--ink);
