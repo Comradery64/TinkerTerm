@@ -1,0 +1,151 @@
+/* Mission Control: matte console panels, a glass display, a telemetry rack and a CAPCOM strip. */
+/* IBM Plex Mono + Plex Sans Condensed, SIL OFL 1.1 (public/themes/mission/fonts/OFL.txt) */
+@font-face { font-family: "Mission Mono"; src: url("/themes/mission/fonts/IBMPlexMono-Regular.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Mission Label"; src: url("/themes/mission/fonts/IBMPlexSansCondensed-SemiBold.woff2") format("woff2"); font-weight: 600; }
+
+[data-theme="mission"] {
+  --ink: #cfe0ec; --paper: #18232e; --ui-font: "Mission Label", "Helvetica Neue", sans-serif;
+  --mission-rack: 212px; --mission-green: #5cf2a0; --mission-amber: #ffb547; --mission-dim: #6f8496;
+}
+@media (max-width: 760px) { [data-theme="mission"] { --mission-rack: 164px; } }
+
+/* matte console: fine vertical brushing over a cool dark gradient, square-ish hardware corners */
+[data-theme="mission"] #page {
+  border-radius: 14px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, #1c2733 0%, #121a23 60%, #0e151c 100%);
+  box-shadow: inset 0 0 0 1px #2c3a48, inset 0 0 0 4px #0a0f14;
+}
+
+/* --- header: callsign + mission elapsed time --- */
+[data-theme="mission"] #mission-head {
+  position: absolute; top: 0; left: 0; right: 0; height: 52px; padding-left: 120px;   /* clear of traffic lights */
+  display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #2c3a48;
+  background: linear-gradient(#202d3a, #18222c); font: 600 12px var(--ui-font); letter-spacing: .18em; color: var(--mission-dim);
+  white-space: nowrap; overflow: hidden;
+}
+[data-theme="mission"] #mission-head b { font: 400 15px "Mission Mono", monospace; letter-spacing: .06em; color: #e8f1f8; }
+[data-theme="mission"] #mission-head #mission-met { color: var(--mission-green); }
+[data-theme="mission"] #mission-head .sep { width: 1px; height: 22px; background: #2c3a48; margin: 0 8px; }
+@media (max-width: 700px) { [data-theme="mission"] #mission-head .lbl:first-child { display: none; } }
+
+/* --- the tools become flat console keys in the header --- */
+[data-theme="mission"] #tools { top: 10px; right: 14px; gap: 6px; }
+[data-theme="mission"] #tools button {
+  font-size: 14px; padding: 3px 9px; border: 1px solid #3a4b5c; border-radius: 4px; background: linear-gradient(#2a3746, #1c2632);
+  box-shadow: 0 2px 0 #090d12, inset 0 1px 0 rgba(255,255,255,.08); filter: grayscale(.85) brightness(1.2);
+}
+[data-theme="mission"] #tools button:hover { filter: none; border-color: var(--mission-green); }
+[data-theme="mission"] #tools button:active { transform: translateY(2px); box-shadow: 0 0 0 #090d12; }
+@media (max-width: 700px) { [data-theme="mission"] #mission-head { padding-right: 140px; } }
+
+/* --- main display: glass with a thin bezel; the text sits inside it --- */
+[data-theme="mission"] #mission-glass {
+  position: absolute; top: 66px; left: 14px; right: calc(var(--mission-rack) + 26px); bottom: 66px;
+  border-radius: 8px; border: 1px solid #34465a;
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 40%, #0d1f22 0%, #08121a 70%, #060c12 100%);
+  box-shadow: 0 0 0 5px #0b1118, 0 0 0 6px #2a3746, inset 0 0 40px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.05);
+}
+[data-theme="mission"] #mission-glass::after {   /* faint reflection across the glass */
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(160deg, rgba(255,255,255,.05) 0%, transparent 35%);
+}
+[data-theme="mission"] .corner { position: absolute; width: 10px; height: 10px; border: 0 solid var(--mission-dim); opacity: .7; }
+[data-theme="mission"] .corner.tl { top: 6px; left: 6px; border-width: 1px 0 0 1px; }
+[data-theme="mission"] .corner.tr { top: 6px; right: 6px; border-width: 1px 1px 0 0; }
+[data-theme="mission"] .corner.bl { bottom: 6px; left: 6px; border-width: 0 0 1px 1px; }
+[data-theme="mission"] .corner.br { bottom: 6px; right: 6px; border-width: 0 1px 1px 0; }
+
+[data-theme="mission"] #term, [data-theme="mission"]:not(.real) #term {
+  top: 80px; left: 30px; right: calc(var(--mission-rack) + 46px); bottom: 80px;
+}
+[data-theme="mission"].real #term { right: 30px; }
+[data-theme="mission"] .xterm .xterm-cursor { border-radius: 1px; }
+[data-theme="mission"] #scroll-thumb { right: -10px; width: 4px; background: var(--mission-green); }
+
+/* --- telemetry rack --- */
+[data-theme="mission"] #mission-rack {
+  position: absolute; top: 66px; right: 14px; bottom: 66px; width: var(--mission-rack); box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 8px; padding: 10px; overflow: hidden;
+  border: 1px solid #2c3a48; border-radius: 8px; background: linear-gradient(#17212b, #121a22);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 2px 0 #080c10;
+  font: 600 10px var(--ui-font); letter-spacing: .2em; color: var(--mission-dim);
+}
+[data-theme="mission"] #mission-rack h3 { margin: 0 0 2px; font: inherit; font-size: 11px; color: #b8c7d3; display: flex; align-items: center; gap: 8px; }
+[data-theme="mission"] #mission-rack h3::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--mission-green); box-shadow: 0 0 6px var(--mission-green); animation: mission-pulse 2s ease-in-out infinite; }
+[data-theme="mission"] #mission-rack section { background: #0c1218; border: 1px solid #243140; border-radius: 5px; padding: 7px 8px; display: grid; gap: 5px; }
+[data-theme="mission"] #mission-rack label { display: block; }
+[data-theme="mission"] #mission-rack b { font: 400 13px "Mission Mono", monospace; letter-spacing: .04em; color: #e8f1f8; }
+[data-theme="mission"] #mission-rack b.big { font-size: 26px; color: var(--mission-green); letter-spacing: .08em; line-height: 1; }
+[data-theme="mission"] #mission-rack .row { display: flex; justify-content: space-between; align-items: baseline; }
+[data-theme="mission"] #mission-rack small { font-size: 9px; }
+[data-theme="mission"] #mission-rack b#mission-last { color: var(--mission-amber); font-size: 12px; }
+
+[data-theme="mission"] .bar { height: 8px; border-radius: 2px; background: repeating-linear-gradient(90deg, #1b2733 0 6px, #0c1218 6px 8px); overflow: hidden; }
+[data-theme="mission"] .bar span {
+  display: block; height: 100%; transform-origin: 0 50%; transform: scaleX(0); transition: transform .25s linear;
+  background: linear-gradient(90deg, var(--mission-green) 70%, var(--mission-amber));
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 6px, transparent 6px 8px);
+}
+
+[data-theme="mission"] .status { grid-template-columns: 1fr 1fr; }
+[data-theme="mission"] .lamp {
+  text-align: center; padding: 5px 0; border-radius: 3px; font-size: 12px; letter-spacing: .24em; border: 1px solid #243140;
+  color: #2d3c4a; background: #0a0f14; transition: background .2s, color .2s;
+}
+[data-theme="mission"] .lamp.go { color: #062414; background: var(--mission-green); box-shadow: 0 0 10px rgba(92,242,160,.45); }
+[data-theme="mission"] #chrome.mission-hold .lamp.go { color: #2d3c4a; background: #0a0f14; box-shadow: none; }
+[data-theme="mission"] #chrome.mission-hold .lamp.hold { color: #2a1700; background: var(--mission-amber); animation: mission-blink .5s steps(1) infinite; }
+@keyframes mission-blink { 50% { background: #3a2a10; color: var(--mission-amber); } }
+@keyframes mission-pulse { 50% { opacity: .35; } }
+
+[data-theme="mission"] .orbit { flex: 1 1 auto; min-height: 0; grid-template-rows: auto 1fr auto; }
+[data-theme="mission"] .orbit svg { align-self: center; width: 100%; height: 100%; min-height: 0; max-height: 150px; }
+[data-theme="mission"] .orbit .ring { fill: none; stroke: #2f4457; stroke-width: .8; }
+[data-theme="mission"] .orbit .ring.faint { stroke: #1d2a36; stroke-dasharray: 2 2; }
+[data-theme="mission"] .orbit .planet { fill: #1c3b52; stroke: #4c88ad; stroke-width: .8; }
+[data-theme="mission"] .orbit .sat { fill: var(--mission-green); }
+[data-theme="mission"] .orbit .halo { fill: none; stroke: var(--mission-green); stroke-width: .6; opacity: .5; }
+[data-theme="mission"] #mission-sat { transition: transform .9s cubic-bezier(.4,0,.2,1); }
+@media (max-height: 520px) { [data-theme="mission"] .orbit svg { display: none; } }
+
+/* --- CAPCOM strip: #mascot is repositioned as the radio line, #bubble is the transmission text --- */
+[data-theme="mission"] #mission-comms {
+  position: absolute; left: 14px; right: 14px; bottom: 14px; height: 40px; box-sizing: border-box;
+  display: flex; align-items: center; gap: 12px; padding: 0 12px; border: 1px solid #2c3a48; border-radius: 6px;
+  background: #0b1117; font: 600 11px var(--ui-font); letter-spacing: .2em; color: var(--mission-dim);
+}
+[data-theme="mission"] #mission-comms .tag { color: #0b1117; background: var(--mission-dim); padding: 3px 7px; border-radius: 2px; }
+[data-theme="mission"] #mission-comms .ch { flex: 1; transition: opacity .2s; }
+[data-theme="mission"] #mission-comms .led { width: 8px; height: 8px; border-radius: 50%; background: #23313e; }
+[data-theme="mission"] #page:has(#bubble.on) #mission-comms .ch { opacity: 0; }
+[data-theme="mission"] #page:has(#bubble.on) #mission-comms .tag { background: var(--mission-green); }
+[data-theme="mission"] #page:has(#bubble.on) #mission-comms .led { background: var(--mission-green); box-shadow: 0 0 8px var(--mission-green); animation: mission-pulse .4s steps(2) infinite; }
+[data-theme="mission"] #page:has(#mascot.think) #mission-comms .tag { background: var(--mission-amber); }
+
+[data-theme="mission"] #mascot, [data-theme="mission"] #mascot[class] {
+  left: 110px; right: 40px; bottom: 14px; width: auto; height: 40px; animation: none; transform: none; pointer-events: none;
+}
+[data-theme="mission"] #bubble {
+  position: absolute; inset: 0; bottom: 0; right: 0; width: auto; max-width: none; transform: none; transition: opacity .15s;
+  display: flex; align-items: center; padding: 0 0 0 4px; background: none; border: 0; border-radius: 0;
+  font: 400 14px "Mission Mono", monospace; letter-spacing: .02em; color: #d9f7e6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+[data-theme="mission"] #bubble::after { display: none; }
+[data-theme="mission"] #bubble.on { transform: none; }
+[data-theme="mission"] #bubble::before { content: "›› "; color: var(--mission-green); white-space: pre; }
+
+/* --- giant words: a flight-display readout, not a cartoon --- */
+[data-theme="mission"] .bigword:not(.pic) {
+  font: 600 110px var(--ui-font); letter-spacing: .08em; text-transform: uppercase; color: var(--mission-green) !important;
+  -webkit-text-stroke: 0; text-shadow: 0 0 18px rgba(92,242,160,.5);
+}
+[data-theme="mission"] .bigword span { animation: pop 0.35s ease-out both; }
+[data-theme="mission"] .bit { font-family: "Mission Mono", monospace; }
+
+/* grown-up card and sticker tray in console colors */
+[data-theme="mission"] .card, [data-theme="mission"] #tray { border-width: 1px; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.6); }
+[data-theme="mission"] .card button { border-width: 1px; border-radius: 4px; box-shadow: none; }
