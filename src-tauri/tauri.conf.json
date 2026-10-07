@@ -17,7 +17,9 @@
         "height": 640,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
-        "transparent": true
+        "transparent": true,
+        "minWidth": 560,
+        "minHeight": 420
       }
     ],
     "macOSPrivateApi": true,

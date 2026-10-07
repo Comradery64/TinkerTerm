@@ -2,6 +2,7 @@ import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { invoke, Channel } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import "@xterm/xterm/css/xterm.css";
 import { prefs, savePrefs } from "./prefs";
 import { ToyShell } from "./toyshell";
@@ -63,7 +64,7 @@ async function main() {
   showMute();
   toy.start();
   term.focus();
-  if (TAURI) watchTrafficLights();
+  if (TAURI) { watchTrafficLights(); resizeGrips(); }
 }
 
 /** Stars puff out of the letter just typed. */
@@ -140,6 +141,17 @@ async function switchMode() {
     ptyReady = true;
   }
   term.focus();
+}
+
+/** Edge and corner handles that start a native resize. */
+function resizeGrips() {
+  const dirs = { N: "North", S: "South", E: "East", W: "West", NE: "NorthEast", NW: "NorthWest", SE: "SouthEast", SW: "SouthWest" } as const;
+  for (const [k, dir] of Object.entries(dirs)) {
+    const g = document.createElement("div");
+    g.className = `grip ${k}`;
+    g.addEventListener("mousedown", (e) => { e.preventDefault(); getCurrentWindow().startResizeDragging(dir); });
+    document.body.appendChild(g);
+  }
 }
 
 /** macOS window buttons: hidden until the pointer is in the top-left corner. */

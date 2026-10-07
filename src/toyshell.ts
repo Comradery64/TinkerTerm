@@ -42,6 +42,24 @@ const JOKES = [
   ["What do you call a bear with no teeth?", "A gummy bear! 🐻"],
 ];
 
+/**
+ * Break lines at spaces before they reach the edge, so words never split ("hel / p").
+ * Escape codes take no room; emoji take two cells. Wrapped lines keep the 2-space indent.
+ */
+function wrap(s: string, cols: number): string {
+  const width = (t: string) => [...t.replace(/\x1b\[[0-9;]*m/g, "")].reduce((n, c) => n + (/\p{Extended_Pictographic}/u.test(c) ? 2 : c === "\uFE0F" ? 0 : 1), 0);
+  return s.split("\r\n").map((line) => {
+    if (width(line) < cols) return line;
+    let out = "", cur = 0;
+    for (const word of line.split(/(?<= )/)) {     // keep each word's trailing space
+      const w = width(word);
+      if (cur + w > cols - 1 && cur > 2) { out = out.trimEnd() + "\r\n  "; cur = 2; }
+      out += word; cur += w;
+    }
+    return out;
+  }).join("\r\n");
+}
+
 const IDEAS = ["cat", "say hello", "2 + 3", "party", "joke", "count 5", "color pink", "rocket", "dance", "roll"];
 
 export class ToyShell {
@@ -59,7 +77,7 @@ export class ToyShell {
     this.prompt();
   }
 
-  private out(s: string) { this.term.write(s); }
+  private out(s: string) { this.term.write(wrap(s, this.term.cols)); }
 
   private prompt() {
     const who = prefs.name ? rainbow(prefs.name) + " " : "";
