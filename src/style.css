@@ -1,18 +1,22 @@
 /* Comic Mono: a monospaced Comic Sans, MIT (public/fonts/ComicMono-LICENSE) */
 @font-face { font-family: "Comic Mono"; src: url("/fonts/ComicMono.ttf") format("truetype"); font-weight: 400; }
 @font-face { font-family: "Comic Mono"; src: url("/fonts/ComicMono-Bold.ttf") format("truetype"); font-weight: 700; }
+/* Maple Mono: rounded mono for the older looks, OFL-1.1 (public/fonts/MapleMono-LICENSE) */
+@font-face { font-family: "Maple Mono"; src: url("/fonts/MapleMono-Regular.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Maple Mono"; src: url("/fonts/MapleMono-Bold.woff2") format("woff2"); font-weight: 700; }
 
 :root {
   --cream: #fffaf0;
   --ink: #3b2a6b;
   --pink: #ff5cc8;
   --round: "Comic Mono", "Comic Sans MS", "Chalkboard SE", sans-serif;
+  --bleed: 28px;   /* transparent window margin stickers can hang into */
 }
 
 html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; font-family: var(--round); color: var(--ink); }
 
 #page {
-  position: relative; height: 100%;
+  position: absolute; inset: var(--bleed);
   /* the window itself is transparent: this is the app's corner, concentric with the crayon border */
   border-radius: 48px; overflow: hidden;
   /* dotted drawing paper */
@@ -34,13 +38,13 @@ header { position: absolute; top: 0; left: 0; right: 0; height: 64px; }
 body:not(.real) #term { right: 240px; }      /* room for Tinker */
 .xterm .xterm-viewport { background: transparent !important; scrollbar-width: none; }
 .xterm .xterm-viewport::-webkit-scrollbar { width: 0; height: 0; }
-.wobble .xterm .xterm-rows { filter: url(#wobble); }
-.xterm .xterm-rows { text-shadow: 0 0 0.6px currentColor; }   /* a bit of waxy fatness */
+[data-theme="crayon"].wobble .xterm .xterm-rows { filter: url(#wobble); }
+[data-theme="crayon"] .xterm .xterm-rows { text-shadow: 0 0 0.6px currentColor; }   /* a bit of waxy fatness */
 .xterm .xterm-cursor { border-radius: 4px; }
 
 #scroll-thumb {
   position: absolute; top: 0; right: -14px; width: 10px; border-radius: 6px;
-  background: var(--pink); opacity: 0; transition: opacity 0.5s, width 0.15s;
+  background: var(--ink); opacity: 0; transition: opacity 0.5s, width 0.15s;
 }
 #scroll-thumb.on { opacity: 0.35; transition-duration: 0.12s; }
 
@@ -130,3 +134,113 @@ body:not(.real) #term { right: 240px; }      /* room for Tinker */
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 .bigword.pic { filter: none; -webkit-text-stroke: 0; font-size: 160px; }
+
+/* --- stickers --- */
+#bleed { position: fixed; inset: 0; }
+#stickers { position: fixed; inset: 0; pointer-events: none; z-index: 8; }
+.sticker {
+  position: absolute; font-size: 72px; line-height: 1; cursor: grab; pointer-events: auto; user-select: none;
+  /* white die-cut edge and a little lift, like a real sticker */
+  filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 5px 5px rgba(0,0,0,.25));
+}
+.sticker.held { cursor: grabbing; filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 14px 10px rgba(0,0,0,.3)); }
+.sticker.slap { animation: slap 0.35s cubic-bezier(.3,1.6,.5,1); }
+@keyframes slap { from { scale: 2.2; opacity: 0; } }
+#bin {
+  position: fixed; left: 50px; bottom: 50px; font-size: 54px; z-index: 9; pointer-events: none;
+  opacity: 0; transform: scale(0.6); transition: opacity 0.2s, transform 0.2s;
+}
+#bin.on { opacity: 0.8; transform: scale(1); }
+#bin.hot { opacity: 1; transform: scale(1.35) rotate(-8deg); }
+#tray {
+  position: absolute; top: 96px; right: 48px; z-index: 6; display: grid; grid-template-columns: repeat(6, 52px); gap: 6px;
+  background: #fff; border: 4px solid var(--ink); border-radius: 22px; padding: 10px; box-shadow: 0 6px 0 var(--ink);
+  animation: pop 0.25s cubic-bezier(.3,1.6,.5,1);
+}
+#tray button { font-size: 34px; background: none; border: none; cursor: pointer; border-radius: 12px; transition: transform 0.1s; }
+#tray button:hover { transform: scale(1.25) rotate(-6deg); background: #fff3c4; }
+
+/* --- themes: crayon is the base above; the rest swap the decorations --- */
+#deco { display: none; position: absolute; inset: 0; pointer-events: none; }
+#deco i { position: absolute; display: block; }
+body:not([data-theme="crayon"]) :is(#doodles, #sun, #cloud) { display: none; }
+body:not([data-theme="crayon"]) #deco { display: block; }
+
+/* Toy Box: chunky glossy plastic, primary colors, a row of beads */
+[data-theme="toybox"] { --ink: #1d3557; --round: "Maple Mono", sans-serif; }
+[data-theme="toybox"] #page {
+  background: radial-gradient(circle, #d6efff 3px, transparent 3.5px) 0 0 / 34px 34px, #eef8ff;
+  box-shadow: inset 0 0 0 14px #e63946, inset 0 0 0 18px #fff, inset 0 0 0 26px #ffd60a, inset 0 3px 0 30px rgba(255,255,255,.5);
+}
+[data-theme="toybox"] #deco i { top: 44px; width: 38px; height: 38px; border-radius: 50%; box-shadow: inset -4px -6px 0 rgba(0,0,0,.18), 0 3px 0 rgba(0,0,0,.15); }
+[data-theme="toybox"] #deco i::after { content: ""; position: absolute; left: 9px; top: 7px; width: 10px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.75); }
+[data-theme="toybox"] #deco i:nth-child(1) { left: 70px; background: #e63946; }
+[data-theme="toybox"] #deco i:nth-child(2) { left: 116px; background: #ffd60a; }
+[data-theme="toybox"] #deco i:nth-child(3) { left: 162px; background: #1d8fe1; }
+[data-theme="toybox"] #deco i:nth-child(4) { left: 208px; background: #2fbf4a; }
+[data-theme="toybox"] #deco i:nth-child(5) { left: 254px; background: #ff8c1a; }
+[data-theme="toybox"] #deco i:nth-child(6) { left: 300px; background: #8e44ec; }
+[data-theme="toybox"] #tools button { border-radius: 50%; width: 52px; height: 52px; padding: 0; background: #ffd60a; box-shadow: inset -3px -5px 0 rgba(0,0,0,.15), 0 4px 0 var(--ink); }
+[data-theme="toybox"] #mascot .skin { fill: #ff8c1a; } [data-theme="toybox"] #mascot .belly { fill: #ffe0a3; } [data-theme="toybox"] #mascot .limb { stroke: #e05d00; }
+
+/* Brick Builder: a studded baseplate, a red frame plate, the text on a smooth white tile */
+[data-theme="bricks"] { --ink: #222; --round: "Maple Mono", sans-serif; }
+[data-theme="bricks"] #page {
+  border-radius: 14px;
+  background: radial-gradient(circle at 50% 44%, #6cc96c 0 6px, #2f7d32 6.5px 8.5px, transparent 9px) 0 0 / 30px 30px, #43a047;
+  box-shadow: inset 0 0 0 16px #d01012, inset 0 0 0 19px #8f0a0b;
+}
+[data-theme="bricks"] #term { background: #fafafa; border-radius: 6px; box-shadow: 0 0 0 14px #fafafa, 0 8px 0 14px #c9c9c9; }
+[data-theme="bricks"] #deco i {
+  top: 34px; width: 112px; height: 40px; border-radius: 4px; box-shadow: inset 0 -6px 0 rgba(0,0,0,.2);
+  background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,.35) 0 7px, rgba(0,0,0,.15) 7.5px 9px, transparent 9.5px);
+  background-size: 28px 40px;
+}
+[data-theme="bricks"] #deco i:nth-child(1) { left: 56px; background-color: #ffcd00; }
+[data-theme="bricks"] #deco i:nth-child(2) { left: 176px; background-color: #0055bf; width: 56px; }
+[data-theme="bricks"] #deco i:nth-child(3) { left: 240px; background-color: #ffcd00; width: 84px; }
+[data-theme="bricks"] #deco i:nth-child(n+4) { display: none; }
+[data-theme="bricks"] #tools button { border-radius: 4px; background: #ffcd00; border-color: #222; box-shadow: 0 5px 0 #b38f00; }
+[data-theme="bricks"] #mascot .skin { fill: #ffcd00; } [data-theme="bricks"] #mascot .belly { fill: #d01012; } [data-theme="bricks"] #mascot .limb { stroke: #d01012; }
+[data-theme="bricks"] #bubble, [data-theme="bricks"] .card, [data-theme="bricks"] #tray { border-radius: 6px; }
+
+/* Paint Party: a white canvas with a wild striped border and paint splats */
+[data-theme="paint"] { --ink: #2b1055; }
+[data-theme="paint"] #page {
+  border: 14px solid transparent;
+  background: linear-gradient(#fff, #fff) padding-box,
+    repeating-linear-gradient(45deg, #ff00a8 0 16px, #00d1ff 16px 32px, #ffe600 32px 48px, #00e05a 48px 64px) 0 0 / 90.5px 90.5px border-box;
+  animation: march 3s linear infinite;
+}
+@keyframes march { to { background-position: 0 0, 90.5px 0; } }
+[data-theme="paint"] #deco i { border-radius: 58% 42% 63% 37% / 45% 60% 40% 55%; opacity: .22; }
+[data-theme="paint"] #deco i:nth-child(1) { left: 6%; top: 8%; width: 140px; height: 110px; background: #ff00a8; }
+[data-theme="paint"] #deco i:nth-child(2) { right: 30%; top: 4%; width: 90px; height: 80px; background: #00d1ff; }
+[data-theme="paint"] #deco i:nth-child(3) { left: 40%; bottom: 6%; width: 180px; height: 120px; background: #ffe600; }
+[data-theme="paint"] #deco i:nth-child(4) { left: 3%; bottom: 10%; width: 100px; height: 100px; background: #00e05a; }
+[data-theme="paint"] #deco i:nth-child(5) { right: 4%; top: 40%; width: 70px; height: 90px; background: #8a2be2; }
+[data-theme="paint"] #deco i:nth-child(6) { display: none; }
+[data-theme="paint"] #tools button { background: #00d1ff; transform: rotate(-4deg); }
+[data-theme="paint"] #mascot .skin { fill: #ff4fc1; } [data-theme="paint"] #mascot .belly { fill: #ffd1f0; } [data-theme="paint"] #mascot .limb { stroke: #c2008a; }
+
+/* Night Sky: dark and calm, for older kids and bedtime */
+[data-theme="night"] { --ink: #e8f1ff; --round: "Maple Mono", sans-serif; }
+[data-theme="night"] #page {
+  background: radial-gradient(circle, rgba(255,255,255,.7) 1px, transparent 1.5px) 0 0 / 97px 83px,
+    radial-gradient(circle, rgba(255,255,255,.4) 1px, transparent 1.5px) 40px 30px / 61px 71px,
+    radial-gradient(ellipse at 70% 0%, #2a3a8a, #0b1030 70%);
+  box-shadow: inset 0 0 0 3px #5cf2ff, inset 0 0 30px rgba(92,242,255,.35);
+}
+[data-theme="night"] #deco i:nth-child(1) { right: 280px; top: 34px; width: 62px; height: 62px; border-radius: 50%; box-shadow: 14px -6px 0 0 #ffe9a8; }
+[data-theme="night"] #deco i:nth-child(n+2) { width: 4px; height: 4px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px 2px #9ef7ff; animation: twinkle 3s ease-in-out infinite; }
+[data-theme="night"] #deco i:nth-child(2) { left: 12%; top: 9%; } [data-theme="night"] #deco i:nth-child(3) { left: 35%; top: 6%; animation-delay: -1s; }
+[data-theme="night"] #deco i:nth-child(4) { left: 55%; top: 12%; animation-delay: -2s; } [data-theme="night"] #deco i:nth-child(5) { left: 22%; top: 15%; animation-delay: -.5s; }
+[data-theme="night"] #deco i:nth-child(6) { left: 46%; top: 4%; animation-delay: -1.5s; }
+@keyframes twinkle { 50% { opacity: .2; } }
+[data-theme="night"] #tools button, [data-theme="night"] .card, [data-theme="night"] #bubble, [data-theme="night"] #tray { background: #1b2350; color: #e8f1ff; border-color: #5cf2ff; box-shadow: 0 4px 0 #5cf2ff; }
+[data-theme="night"] .card input, [data-theme="night"] .card select { background: #0b1030; color: #e8f1ff; border-color: #5cf2ff; }
+[data-theme="night"] #bubble::after { border-top-color: #5cf2ff; }
+[data-theme="night"] #mascot .skin { fill: #3fd0c9; } [data-theme="night"] #mascot .belly { fill: #a6f5ef; } [data-theme="night"] #mascot .limb { stroke: #1d8f8a; }
+[data-theme="night"] #scroll-thumb { background: #5cf2ff; }
+/* the waxy grain is the crayon look only */
+body:not([data-theme="crayon"]) #mascot g { filter: none; }

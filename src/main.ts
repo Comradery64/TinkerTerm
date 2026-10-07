@@ -9,12 +9,11 @@ import { openParent, type Changed } from "./parent";
 import { burst, nap, sfx, mascot, say } from "./fx";
 import { remapSgr } from "./sgr";
 import { overlayScrollbar } from "./scrollbar";
+import { themeFor } from "./themes";
+import { drawStickers, toggleTray } from "./stickers";
 
 const TAURI = "__TAURI_INTERNALS__" in window;
-const FONT = `"Comic Mono", "Comic Sans MS", "Chalkboard SE", "Comic Neue", sans-serif`;
-
 const term = new Terminal({
-  fontFamily: FONT,
   fontSize: prefs.fontSize,
   fontWeight: "bold",
   fontWeightBold: "bold",
@@ -24,20 +23,6 @@ const term = new Terminal({
   cursorBlink: true,
   cursorStyle: "block",
   scrollback: 2000,
-  theme: {
-    background: "rgba(0,0,0,0)",
-    foreground: "#3b2a6b", cursor: "#ff5cc8", cursorAccent: "#fffaf0",
-    selectionBackground: "#ffe58a",
-    // bright crayons, each still dark enough to read on the cream page
-    black: "#3b2a6b", brightBlack: "#6b5e8c",
-    red: "#e53935", brightRed: "#ff4d4d",
-    green: "#2e9d00", brightGreen: "#3ec300",
-    yellow: "#c98a00", brightYellow: "#e6a100",
-    blue: "#1279d6", brightBlue: "#1fa0ff",
-    magenta: "#c2189b", brightMagenta: "#ff5cc8",
-    cyan: "#00897b", brightCyan: "#00a99a",
-    white: "#7a6f99", brightWhite: "#3b2a6b",
-  },
 });
 const fit = new FitAddon();
 term.loadAddon(fit);
@@ -47,12 +32,11 @@ const el = document.getElementById("term")!;
 const scrollbar = overlayScrollbar(el);
 
 let mode: "kid" | "real" = "kid";
-const toy = new ToyShell(term, grownUp);
+const toy = new ToyShell(term, grownUp, setTheme);
 let ptyReady = false;
 
 async function main() {
-  // both faces before xterm measures its cell, or it measures a fallback font
-  await Promise.all(["", "bold "].map((w) => document.fonts.load(`${w}20px "Comic Mono"`).catch(() => [])));
+  await setTheme(prefs.theme);
   term.open(el);
   scrollbar.refresh();
   applyLook();
@@ -69,6 +53,8 @@ async function main() {
   term.attachCustomKeyEventHandler(keys);
   document.getElementById("grownup")!.addEventListener("click", grownUp);
   document.getElementById("mute")!.addEventListener("click", toggleMute);
+  document.getElementById("stick")!.addEventListener("click", () => toggleTray(() => term.focus()));
+  drawStickers();
   document.getElementById("mascot")!.addEventListener("click", () => {
     sfx.boing(); mascot("happy"); say("Hee hee, that tickles!", 2000);
   });
@@ -104,9 +90,23 @@ function applyLook() {
   fit.fit();
 }
 
+/** Switch look: CSS decorates from data-theme; xterm gets the font and palette. */
+export async function setTheme(key: string) {
+  const t = themeFor(key);
+  prefs.theme = t.key; savePrefs();
+  document.body.dataset.theme = t.key;
+  // both faces before xterm measures its cell, or it measures a fallback font
+  const family = t.font.split(",")[0];
+  await Promise.all(["", "bold "].map((w) => document.fonts.load(`${w}20px ${family}`).catch(() => [])));
+  term.options.fontFamily = t.font;
+  term.options.theme = t.colors;
+  fit.fit();
+}
+
 function grownUp() {
   openParent(mode === "real", (what: Changed) => {
     if (what === "mode") switchMode();
+    else if (what === "theme") setTheme(prefs.theme);
     else applyLook();
   }, () => term.focus());
 }

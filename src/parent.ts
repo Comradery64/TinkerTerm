@@ -1,7 +1,8 @@
 /** Grown-up corner: a gate a small kid can't pass (a times-table question), then the settings. */
 import { prefs, savePrefs } from "./prefs";
+import { THEMES } from "./themes";
 
-export type Changed = "fontSize" | "wobble" | "mode";
+export type Changed = "fontSize" | "wobble" | "mode" | "theme";
 
 export function openParent(realMode: boolean, changed: (what: Changed) => void, close: () => void) {
   const a = 12 + Math.floor(Math.random() * 8), b = 6 + Math.floor(Math.random() * 4);
@@ -32,6 +33,8 @@ export function openParent(realMode: boolean, changed: (what: Changed) => void, 
         <label><input type="checkbox" name="sound" ${prefs.sound ? "checked" : ""}> Sounds</label>
         <label><input type="checkbox" name="speech" ${prefs.speech ? "checked" : ""}> Read answers aloud</label>
         <label><input type="checkbox" name="wobble" ${prefs.wobble ? "checked" : ""}> Crayon-edge text</label>
+        <label>Look <select name="theme">${THEMES.map((t) =>
+          `<option value="${t.key}" ${t.key === prefs.theme ? "selected" : ""}>${t.label} (ages ${t.ages})</option>`).join("")}</select></label>
         <label>Text size <input type="range" name="fontSize" min="16" max="44" value="${prefs.fontSize}"></label>
         <label>Kid's name <input name="name" value="${prefs.name.replace(/"/g, "&quot;")}" maxlength="16"></label>
         <hr>
@@ -43,6 +46,8 @@ export function openParent(realMode: boolean, changed: (what: Changed) => void, 
           <button data-close>Done</button>
         </div>
       </div>`;
+    const look = card.querySelector<HTMLSelectElement>("select")!;
+    look.addEventListener("change", () => { prefs.theme = look.value; changed("theme"); });
     card.querySelectorAll<HTMLInputElement>("input").forEach((i) => i.addEventListener("input", () => {
       if (i.type === "checkbox") (prefs as any)[i.name] = i.checked;
       else if (i.name === "fontSize") prefs.fontSize = +i.value;

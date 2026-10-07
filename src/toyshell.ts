@@ -1,6 +1,8 @@
 /** Kid mode: a pretend shell with friendly commands. No filesystem, no processes; nothing can break. */
 import type { Terminal } from "@xterm/xterm";
 import { prefs, savePrefs } from "./prefs";
+import { THEMES } from "./themes";
+import { addSticker, STICKERS } from "./stickers";
 import { sfx, speak, confetti, bigWord, mascot, say, pick, CRAYONS } from "./fx";
 
 const ESC = "\x1b[";
@@ -48,7 +50,7 @@ export class ToyShell {
   private back = 0;
   private ink = CRAYONS[4];
 
-  constructor(private term: Terminal, private onGrownUp: () => void) {}
+  constructor(private term: Terminal, private onGrownUp: () => void, private onTheme: (key: string) => void) {}
 
   start() {
     this.out(`\r\n  ${rainbow("Hi! I'm Tinker!")} 👋\r\n`);
@@ -120,7 +122,7 @@ export class ToyShell {
         for (const [c, d] of [["cat, dog, rocket…", "see a picture and hear it"], ["say hello", "I'll say it big!"],
           ["2 + 3", "do math"], ["count 10", "count with me"], ["color pink", "change your crayon"],
           ["name Sam", "tell me your name"], ["party", "confetti!"], ["dance", "watch me dance"],
-          ["joke", "a silly joke"], ["roll", "roll a dice"], ["abc", "the alphabet"], ["clear", "clean the page"]])
+          ["joke", "a silly joke"], ["theme", "change the look"], ["sticker cat", "add a sticker"], ["roll", "roll a dice"], ["abc", "the alphabet"], ["clear", "clean the page"]])
           this.out(`   ${rgb("#ff5cc8")}${c.padEnd(18)}${RESET} ${d}\r\n`);
         this.out("\r\n");
         speak("Here are some things to try!");
@@ -190,6 +192,21 @@ export class ToyShell {
       case "clear": case "clean":
         this.term.clear(); sfx.sparkle();
         return;
+      case "theme": case "look": {
+        const t = THEMES.find((t) => t.key === arg.toLowerCase() || t.label.toLowerCase().startsWith(arg.toLowerCase()));
+        if (!arg || !t) {
+          this.out(THEMES.map((t) => `  ${rgb("#ff5cc8")}theme ${t.key.padEnd(8)}${RESET} ${t.label}`).join("\r\n") + "\r\n\r\n");
+          speak("Pick a look! Type theme and then a name.");
+          return;
+        }
+        this.onTheme(t.key); sfx.sparkle(); mascot("wow");
+        return this.reply(`Ta-da! ${t.label}! ✨`);
+      }
+      case "sticker": case "stickers": {
+        const e = THINGS[arg.toLowerCase()]?.[0] ?? pick(STICKERS);
+        addSticker(e); mascot("happy");
+        return this.reply(`Stick! ${e}  Drag it anywhere. Drop it on the bin to peel it off.`, pick(CRAYONS), "Stick!");
+      }
       case "grownup": case "parent":
         return this.onGrownUp();
     }
