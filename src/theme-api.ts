@@ -47,6 +47,7 @@ export interface ThemeDef {
   fontFamily: string;     // CSS font stack; put @font-face rules in the theme's style.css
   fontSize?: number;      // default text size for this theme (parent can still change it)
   lineHeight?: number;
+  fontWeight?: "normal" | "bold";   // default bold; single-weight fonts want "normal" or the browser fakes a bold
   cursorStyle?: "block" | "underline" | "bar";
   xterm: ITheme;          // background should be "rgba(0,0,0,0)" so #page shows through
   palette: string[];      // 5-8 output colors, all readable on this theme's background

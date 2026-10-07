@@ -65,6 +65,7 @@ const theme: ThemeDef = {
   blurb: "neon cabinet, high scores, and Blip the pixel bot",
   order: 40,
   fontFamily: `"arcade-VT323", "Menlo", monospace`,
+  fontWeight: "normal",   // VT323 has one weight
   fontSize: 28,
   lineHeight: 1.05,
   cursorStyle: "block",

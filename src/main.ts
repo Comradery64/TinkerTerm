@@ -114,6 +114,7 @@ async function setTheme(key: string, fresh = false) {
   term.options.fontFamily = t.fontFamily;
   term.options.theme = t.xterm;
   term.options.lineHeight = t.lineHeight ?? 1.35;
+  term.options.fontWeight = t.fontWeight ?? "bold";
   term.options.cursorStyle = t.cursorStyle ?? "block";
   term.options.fontSize = prefs.fontSize;
   unmount = t.mount?.(document.getElementById("chrome")!);

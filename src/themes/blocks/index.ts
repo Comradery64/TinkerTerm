@@ -93,6 +93,7 @@ const theme: ThemeDef = {
   blurb: "build in a pixel world, fill your hotbar with Bloop",
   order: 10,
   fontFamily: `"Blocks VT323", "Menlo", monospace`,
+  fontWeight: "normal",   // VT323 has one weight
   fontSize: 30,
   lineHeight: 1.05,
   cursorStyle: "block",
