@@ -140,10 +140,9 @@ body:not(.real) #term { right: 240px; }      /* room for Tinker */
 #stickers { position: fixed; inset: 0; pointer-events: none; z-index: 8; }
 .sticker {
   position: absolute; font-size: 72px; line-height: 1; cursor: grab; pointer-events: auto; user-select: none;
-  /* white die-cut edge and a little lift, like a real sticker */
-  filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 5px 5px rgba(0,0,0,.25));
+  filter: url(#diecut);   /* white die-cut edge, like a real sticker */
 }
-.sticker.held { cursor: grabbing; filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 14px 10px rgba(0,0,0,.3)); }
+.sticker.held { cursor: grabbing; }
 .sticker.slap { animation: slap 0.35s cubic-bezier(.3,1.6,.5,1); }
 @keyframes slap { from { scale: 2.2; opacity: 0; } }
 #bin {

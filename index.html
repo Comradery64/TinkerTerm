@@ -12,6 +12,16 @@
         <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" result="n" />
         <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" />
       </filter>
+      <!-- sticker edge: grow the emoji's shape, fill it white, put the emoji back on top.
+           One filter instead of chained drop-shadows, which WebKit fringes with dark edges. -->
+      <filter id="diecut" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+        <feMorphology in="SourceAlpha" operator="dilate" radius="4" result="grow" />
+        <feGaussianBlur in="grow" stdDeviation="0.6" result="soft" />
+        <feComponentTransfer in="soft" result="edge"><feFuncA type="linear" slope="3" /></feComponentTransfer>
+        <feFlood flood-color="#fff" />
+        <feComposite in2="edge" operator="in" result="white" />
+        <feMerge><feMergeNode in="white" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
       <filter id="wax" x="-5%" y="-5%" width="110%" height="110%">
         <feTurbulence type="fractalNoise" baseFrequency="0.035 0.6" numOctaves="3" seed="7" result="n" />
         <feDisplacementMap in="SourceGraphic" in2="n" scale="6" result="d" />
