@@ -74,7 +74,19 @@ impl Kokoro {
         Ok(Self { session: Mutex::new(session), dir: dir.to_owned(), lexicon, vocab, voices: Mutex::default() })
     }
 
+    /// A voice id, or a blend of voices: "af_heart*0.6+af_bella*0.4" mixes their style vectors.
     fn voice(&self, id: &str) -> Result<Arc<Vec<f32>>, String> {
+        if id.contains('+') {
+            let mut mix: Vec<f32> = Vec::new();
+            for part in id.split('+') {
+                let (name, w) = part.split_once('*').unwrap_or((part, "1"));
+                let w: f32 = w.parse().map_err(|_| format!("bad weight in {id:?}"))?;
+                let v = self.voice(name)?;
+                if mix.is_empty() { mix = vec![0.0; v.len()]; }
+                for (m, x) in mix.iter_mut().zip(v.iter()) { *m += w * x; }
+            }
+            return Ok(Arc::new(mix));
+        }
         if !id.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
             return Err(format!("bad voice id {id:?}"));
         }
