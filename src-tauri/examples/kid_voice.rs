@@ -1,36 +1,20 @@
-//! Listening test: ways to give Kokoro the warm, lifted delivery adults use with children.
+//! Listening test: wording, pace and voice blends for the warm delivery adults use with children.
 //! cargo run --release --example kid_voice   (writes /tmp/tt_kid_*.wav)
 use std::path::Path;
 use tinkerterm_lib::tts::{wav, Kokoro};
-
-/// Pitch up by `semis` without changing length: synthesize slower, then resample faster.
-fn lifted(k: &Kokoro, text: &str, voice: &str, speed: f32, semis: f32) -> Vec<f32> {
-    let r = 2f32.powf(semis / 12.0);
-    let slow = k.synth(text, voice, speed / r).expect("synth");
-    let n = (slow.len() as f32 / r) as usize;
-    (0..n)
-        .map(|i| {
-            let x = i as f32 * r;
-            let j = x as usize;
-            let f = x - j as f32;
-            slow[j] * (1.0 - f) + slow.get(j + 1).copied().unwrap_or(0.0) * f
-        })
-        .collect()
-}
 
 fn main() {
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/kokoro");
     let k = Kokoro::load(&dir, false).expect("load");
     let plain = "Hello Sam! So nice to see you! What do you want to make today?";
-    let kid = "Hello, Sam! Oh, it is sooo nice to see you! ... What do you want to make today?";
-    let blend = "af_heart*0.6+af_bella*0.4";
+    let kid = "Hello, Sam! It's sooo nice to see you! What do you want to make today?";
     let takes: [(&str, Vec<f32>); 6] = [
         ("a_plain", k.synth(plain, "af_heart", 1.0).unwrap()),
         ("b_words", k.synth(kid, "af_heart", 0.9).unwrap()),
-        ("c_blend", k.synth(kid, blend, 0.9).unwrap()),
-        ("d_lift1", lifted(&k, kid, "af_heart", 0.9, 1.0)),
-        ("e_lift2", lifted(&k, kid, "af_heart", 0.9, 2.0)),
-        ("f_blend_lift", lifted(&k, kid, blend, 0.9, 1.5)),
+        ("c_heart_bella", k.synth(kid, "af_heart*0.6+af_bella*0.4", 0.9).unwrap()),
+        ("d_bella", k.synth(kid, "af_bella", 0.92).unwrap()),
+        ("e_sky", k.synth(kid, "af_sky", 0.92).unwrap()),
+        ("f_three_way", k.synth(kid, "af_heart*0.5+af_bella*0.3+af_sky*0.2", 0.9).unwrap()),
     ];
     for (name, audio) in takes {
         let path = format!("/tmp/tt_kid_{name}.wav");

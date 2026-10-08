@@ -342,6 +342,24 @@ fn word(lex: &HashMap<String, String>, w: &str) -> String {
     if let Some(p) = lookup(lex, w) {
         return p;
     }
+    // stretched words ("sooo", "yesss", "wheee"): the real word, stressed, instead of guessing at the spelling
+    if w.chars().zip(w.chars().skip(1)).zip(w.chars().skip(2)).any(|((a, b), c)| a == b && b == c) {
+        // shrink only runs of 3+ (the "ll" in "hellooo" stays): to two letters ("whee"), else to one ("so")
+        let squeeze = |keep: usize| {
+            let mut out = String::new();
+            let cs: Vec<char> = w.chars().collect();
+            let mut i = 0;
+            while i < cs.len() {
+                let run = cs[i..].iter().take_while(|&&c| c == cs[i]).count();
+                out.extend(std::iter::repeat(cs[i]).take(if run >= 3 { keep } else { run }));
+                i += run;
+            }
+            out
+        };
+        if let Some(p) = lookup(lex, &squeeze(2)).or_else(|| lookup(lex, &squeeze(1))) {
+            return p.replace('ˌ', "ˈ");
+        }
+    }
     let lower = w.to_lowercase();
     // possessives and simple suffixes on a known stem
     let suffix = |stem: &str, end: &str| lookup(lex, stem).map(|p| format!("{p}{end}"));
