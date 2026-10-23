@@ -5,3 +5,8 @@ src-tauri/gen
 .DS_Store
 .claude/
 src-tauri/resources/kokoro/
+
+# local dev notes
+PLAN.md
+HANDOFF.md
+CLAUDE.md
