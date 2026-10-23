@@ -1,0 +1,59 @@
+<!doctype html>
+<!-- TinkerTerm icon art, 1024x1024 full-bleed. Reuses the Crayon Box theme's own SVG (wax filter, Tinker, sun,
+     colors) and Comic Mono. ?v=tinker | prompt | sky. Render: tools/icon/render.sh -->
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: "Comic Mono"; src: url("../../public/fonts/ComicMono-Bold.ttf"); font-weight: 700; }
+  html, body { margin: 0; width: 1024px; height: 1024px; overflow: hidden; }
+  #art { position: absolute; inset: 0; }
+  .paper { background: radial-gradient(circle, #f1e3ff 6px, transparent 7px) 0 0 / 96px 96px, #fffaf0; }
+  .sky { background: linear-gradient(#8fd8ff, #d6f1ff 70%, #9be86b 70%); }
+  svg { position: absolute; overflow: visible; }
+  .word { position: absolute; left: 0; right: 0; text-align: center; font: 700 330px/1 "Comic Mono"; letter-spacing: -10px; }
+  .word span { -webkit-text-stroke: 16px #3b2a6b; paint-order: stroke fill; }
+</style>
+<body>
+<svg width="0" height="0" style="position:absolute"><filter id="wax" x="-5%" y="-5%" width="110%" height="110%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.035 0.6" numOctaves="3" seed="7" result="n" />
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="1.5" result="d" />
+  <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="2" result="g" />
+  <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.5" result="holes" />
+  <feComposite in="d" in2="holes" operator="in" /></filter><filter id="waxL" x="-5%" y="-5%" width="110%" height="110%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.035 0.6" numOctaves="3" seed="7" result="n" />
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="9" result="d" />
+  <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="2" result="g" />
+  <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.5" result="holes" />
+  <feComposite in="d" in2="holes" operator="in" /></filter></svg>
+<div id="art"></div>
+<script>
+const v = new URLSearchParams(location.search).get("v") || "tinker";
+const art = document.getElementById("art");
+// the theme's two crayon frame strokes, scaled to the icon
+const frame = (o, i) => `<svg viewBox="0 0 1024 1024" width="1024" height="1024"><g filter="url(#waxL)" fill="none" stroke-linejoin="round">
+  <rect x="${o}" y="${o}" width="${1024 - 2 * o}" height="${1024 - 2 * o}" rx="${150 - o / 2}" stroke="#ff4d4d" stroke-width="40"/>
+  <rect x="${i}" y="${i}" width="${1024 - 2 * i}" height="${1024 - 2 * i}" rx="${150 - i / 2}" stroke="#1fb5ff" stroke-width="20"/></g></svg>`;
+// Tinker, copied from src/themes/crayon/index.ts (sidekick), without the animation classes
+const tinker = (x, y, w) => `<svg viewBox="0 0 140 150" style="left:${x}px;top:${y}px" width="${w}"><g filter="url(#wax)" stroke="#3b2a6b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M28 92 Q8 80 12 62" fill="none" stroke="#7b5cff" stroke-width="9"/><path d="M112 92 Q132 80 128 62" fill="none" stroke="#7b5cff" stroke-width="9"/>
+  <path d="M48 18 Q42 4 54 6 M92 18 Q98 4 86 6" fill="none" stroke="#7b5cff" stroke-width="7"/>
+  <ellipse cx="70" cy="85" rx="48" ry="52" fill="#a58bff"/><ellipse cx="70" cy="100" rx="28" ry="26" fill="#d9ccff" stroke="none"/>
+  <path d="M44 134 v10 M96 134 v10" stroke="#7b5cff" stroke-width="10"/></g>
+  <ellipse cx="54" cy="70" rx="9" ry="11" fill="#fff" stroke="#3b2a6b" stroke-width="3"/><ellipse cx="86" cy="70" rx="9" ry="11" fill="#fff" stroke="#3b2a6b" stroke-width="3"/>
+  <circle cx="55" cy="72" r="5" fill="#3b2a6b"/><circle cx="87" cy="72" r="5" fill="#3b2a6b"/>
+  <circle cx="42" cy="88" r="6" fill="#ff8fb8" opacity=".7"/><circle cx="98" cy="88" r="6" fill="#ff8fb8" opacity=".7"/>
+  <path d="M58 90 Q70 104 82 90" fill="#ff5c8a" stroke="#3b2a6b" stroke-width="4" stroke-linecap="round"/></svg>`;
+const sun = (x, y, w) => `<svg viewBox="0 0 120 120" style="left:${x}px;top:${y}px" width="${w}"><g filter="url(#wax)" stroke="#ff9f1c" stroke-width="7" stroke-linecap="round">
+  <circle cx="60" cy="60" r="22" fill="#ffd23f"/><path d="M60 18v-12M60 114v-12M18 60h-12M114 60h-12M30 30l-8-8M98 98l-8-8M30 90l-8 8M98 22l-8 8"/></g></svg>`;
+const cloud = (x, y, w) => `<svg viewBox="0 0 160 80" style="left:${x}px;top:${y}px" width="${w}"><path filter="url(#wax)" d="M30 60c-20 0-20-28 2-28 2-18 30-24 40-8 10-14 36-10 38 8 22-2 26 28 4 28z" fill="#e8f6ff" stroke="#1fb5ff" stroke-width="6"/></svg>`;
+
+if (v === "tinker") {         // Tinker front and center on the drawing paper
+  art.className = "paper"; art.innerHTML = frame(30, 78) + sun(120, 120, 200) + tinker(212, 260, 600);
+} else if (v === "prompt") {  // the prompt: big rainbow T and a wax-pink block cursor
+  art.className = "paper";
+  art.innerHTML = frame(30, 78) + `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:34px;filter:url(#waxL)">
+    <div class="word" style="position:static;width:auto;font-size:520px;margin-top:-30px;color:#ff4d4d"><span>T</span></div>
+    <div style="width:170px;height:400px;border-radius:30px;background:#ff5cc8;border:14px solid #3b2a6b;margin-top:60px"></div></div>`;
+} else {                      // Tinker peeking up in a sunny sky
+  art.className = "sky"; art.innerHTML = frame(30, 78) + sun(600, 150, 240) + cloud(120, 190, 300) + cloud(480, 400, 220) + tinker(250, 380, 520);
+}
+</script>
