@@ -9,3 +9,12 @@ for v in tinker prompt sky; do
     --window-size=1024,1024 --force-device-scale-factor=1 --virtual-time-budget=4000 \
     --screenshot="$OUT/icon-$v.png" "file://$PWD/icon.html?v=$v" >/dev/null 2>&1
 done
+
+# The chosen one (tinker): shrink to the 824px macOS tile, round it, soft shadow -> icon source and Dock image.
+# Feed dock-1024.png to `pnpm tauri icon`; src-tauri/icons/dock/tinkerterm.png is dock-512.png.
+magick -size 1024x1024 xc:none -fill white -draw "roundrectangle 100,100 923,923 185,185" "$OUT/mask.png"
+magick "$OUT/icon-tinker.png" -resize 824x824 -background none -gravity center -extent 1024x1024 -alpha set "$OUT/mask.png" \
+  -compose CopyOpacity -composite +compose "$OUT/tile.png"
+magick "$OUT/tile.png" \( +clone -background black -shadow 45x14+0+14 \) +swap -background none -layers merge +repage \
+  -gravity center -extent 1024x1024 "$OUT/dock-1024.png"
+magick "$OUT/dock-1024.png" -resize 512x512 "$OUT/dock-512.png"
