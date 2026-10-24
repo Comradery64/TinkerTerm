@@ -28,10 +28,10 @@
 <script>
 const v = new URLSearchParams(location.search).get("v") || "tinker";
 const art = document.getElementById("art");
-// the theme's two crayon frame strokes, scaled to the icon
+// the theme's two crayon frame strokes, concentric with the macOS tile mask (185px at 824 = 230 here)
 const frame = (o, i) => `<svg viewBox="0 0 1024 1024" width="1024" height="1024"><g filter="url(#waxL)" fill="none" stroke-linejoin="round">
-  <rect x="${o}" y="${o}" width="${1024 - 2 * o}" height="${1024 - 2 * o}" rx="${150 - o / 2}" stroke="#ff4d4d" stroke-width="40"/>
-  <rect x="${i}" y="${i}" width="${1024 - 2 * i}" height="${1024 - 2 * i}" rx="${150 - i / 2}" stroke="#1fb5ff" stroke-width="20"/></g></svg>`;
+  <rect x="${o}" y="${o}" width="${1024 - 2 * o}" height="${1024 - 2 * o}" rx="${230 - o}" stroke="#ff4d4d" stroke-width="40"/>
+  <rect x="${i}" y="${i}" width="${1024 - 2 * i}" height="${1024 - 2 * i}" rx="${230 - i}" stroke="#1fb5ff" stroke-width="20"/></g></svg>`;
 // Tinker, copied from src/themes/crayon/index.ts (sidekick), without the animation classes
 const tinker = (x, y, w) => `<svg viewBox="0 0 140 150" style="left:${x}px;top:${y}px" width="${w}"><g filter="url(#wax)" stroke="#3b2a6b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
   <path d="M28 92 Q8 80 12 62" fill="none" stroke="#7b5cff" stroke-width="9"/><path d="M112 92 Q132 80 128 62" fill="none" stroke="#7b5cff" stroke-width="9"/>
