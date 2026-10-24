@@ -128,6 +128,7 @@ function grownUp() {
   openParent(mode === "real", (what: Changed) => {
     if (what === "mode") switchMode();
     else if (what === "theme") setTheme(prefs.theme, true);
+    else if (what === "buddy") setTheme(prefs.theme);
     else applyLook();
   }, () => term.focus());
 }

@@ -20,32 +20,26 @@
 [data-theme="crayon"].wobble .xterm .xterm-rows { filter: url(#wobble); }
 [data-theme="crayon"] .xterm .xterm-rows { text-shadow: 0 0 0.6px currentColor; }   /* a bit of waxy fatness */
 
-/* --- Tinker --- */
+/* --- the buddy: buddies.js draws one pose group per mood; the mood class on #mascot picks it, keyframes add motion --- */
+[data-theme="crayon"] #mascot { width: 200px; right: 30px; bottom: 14px; }
 @keyframes bob { 50% { transform: translateY(-6px) scaleY(1.02); } }
-[data-theme="crayon"] .mouth, [data-theme="crayon"] .closed { display: none; }
-[data-theme="crayon"] .mouth.smile { display: inline; }
-[data-theme="crayon"] .eyes { animation: blink 4.5s infinite; transform-origin: 70px 70px; }
-@keyframes blink { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
-[data-theme="crayon"] .arm { transform-box: fill-box; }
-[data-theme="crayon"] .arm.l { transform-origin: 100% 100%; } [data-theme="crayon"] .arm.r { transform-origin: 0% 100%; }
+[data-theme="crayon"] .pose { display: none; }
+[data-theme="crayon"] #mascot:not(.happy, .think, .dance, .wave, .wow, .sleep) .pose-idle,
+[data-theme="crayon"] #mascot.happy .pose-happy, [data-theme="crayon"] #mascot.think .pose-think,
+[data-theme="crayon"] #mascot.dance .pose-dance, [data-theme="crayon"] #mascot.wave .pose-wave,
+[data-theme="crayon"] #mascot.wow .pose-wow, [data-theme="crayon"] #mascot.sleep .pose-sleep { display: inline; }
 
 [data-theme="crayon"] #mascot.happy { animation: hop 0.5s ease-out 2; }
 @keyframes hop { 40% { transform: translateY(-34px) scale(1.05, 0.95); } 70% { transform: translateY(0) scale(1.1, 0.88); } }
-[data-theme="crayon"] #mascot.wow .mouth.smile { display: none; } [data-theme="crayon"] #mascot.wow .mouth.ooh { display: inline; }
 [data-theme="crayon"] #mascot.wow { animation: grow 0.6s ease-out; }
 @keyframes grow { 40% { transform: scale(1.18); } }
 [data-theme="crayon"] #mascot.think { animation: tilt 1.6s ease-in-out; }
-[data-theme="crayon"] #mascot.think .mouth.smile { display: none; } [data-theme="crayon"] #mascot.think .mouth.hmm { display: inline; }
-[data-theme="crayon"] #mascot.think .pupil { transform: translate(3px, -4px); }
-@keyframes tilt { 30%, 70% { transform: rotate(-10deg); } }
+@keyframes tilt { 30%, 70% { transform: rotate(-6deg); } }
 [data-theme="crayon"] #mascot.dance { animation: wiggle 0.4s ease-in-out infinite; }
-[data-theme="crayon"] #mascot.dance .arm.l { animation: flap 0.4s infinite alternate; }
-[data-theme="crayon"] #mascot.dance .arm.r { animation: flap 0.4s infinite alternate-reverse; }
 @keyframes wiggle { 25% { transform: rotate(-12deg) translateY(-10px); } 75% { transform: rotate(12deg) translateY(-10px); } }
-@keyframes flap { to { transform: rotate(-40deg); } }
-[data-theme="crayon"] #mascot.wave .arm.r { animation: flap 0.25s 6 alternate; }
+[data-theme="crayon"] #mascot.wave { animation: rock 0.25s 6 alternate ease-in-out; }
+@keyframes rock { to { transform: rotate(5deg); } }
 [data-theme="crayon"] #mascot.sleep { animation: bob 5s ease-in-out infinite; }
-[data-theme="crayon"] #mascot.sleep .eyes { display: none; } [data-theme="crayon"] #mascot.sleep .closed { display: inline; }
 [data-theme="crayon"] #zzz { display: none; position: absolute; top: -10px; right: 0; font: bold 26px var(--ui-font); color: #7b5cff; }
 [data-theme="crayon"] #zzz span { font-size: 0.8em; }
 [data-theme="crayon"] #mascot.sleep #zzz { display: block; animation: floatup 3s ease-in-out infinite; }

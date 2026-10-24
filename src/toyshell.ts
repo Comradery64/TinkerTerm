@@ -5,6 +5,7 @@ import { THEMES } from "./themes";
 import { active, emit, type Words } from "./theme-api";
 import { addSticker, STICKERS } from "./stickers";
 import { sfx, speak, confetti, bigWord, mascot, say, pick, palette } from "./fx";
+import { buddy } from "./themes/crayon/buddies.js";
 
 const ESC = "\x1b[";
 const rgb = (hex: string) => `${ESC}38;2;${parseInt(hex.slice(1, 3), 16)};${parseInt(hex.slice(3, 5), 16)};${parseInt(hex.slice(5, 7), 16)}m`;
@@ -15,7 +16,7 @@ const col = (n: number) => palette()[n % palette().length];
 
 /** Crayon Box wording; themes override any of it (ThemeDef.words). */
 const BASE_WORDS: Words = {
-  intro: () => [`${rainbow("Hi! I'm Tinker!")} 👋`, `Type a word and press ${rgb(col(3))}Enter${RESET}. Try ${rgb(col(6))}cat${RESET} or ${rgb(col(6))}help${RESET}!`],
+  intro: () => [`${rainbow(`Hi! I'm ${active().key === "crayon" ? buddy(prefs.buddy).name : "Tinker"}!`)} 👋`, `Type a word and press ${rgb(col(3))}Enter${RESET}. Try ${rgb(col(6))}cat${RESET} or ${rgb(col(6))}help${RESET}!`],
   greet: (name) => name ? `Hi ${name}! Let's play!` : "Hi! Let's play!",
   prompt: (name) => `  ${name ? rainbow(name) + " " : ""}${rgb(col(1))}★ ${RESET}`,
   unknown: (raw, idea) => `Hmm, I don't know "${raw}" yet! 🤔\nTry typing: ${idea}`,

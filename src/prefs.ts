@@ -6,6 +6,7 @@ export const prefs = {
   wobble: true,      // crayon-edge filter on the text
   name: "",          // the kid's name, from `name Sam`
   theme: "crayon",
+  buddy: "fox",      // Crayon Box sidekick: fox (Tinker) | robot | crayon | crab | dragon
 };
 
 try { Object.assign(prefs, JSON.parse(localStorage.getItem("prefs") ?? "{}")); }

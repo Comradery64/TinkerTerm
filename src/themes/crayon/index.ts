@@ -1,12 +1,14 @@
-/** Crayon Box (2-5): wax crayons on drawing paper, and Tinker, a round purple crayon monster. */
+/** Crayon Box (2-5): wax crayons on drawing paper, and a buddy: Tinker the fox, or one of four friends (buddies.js). */
 import type { ThemeDef } from "../../theme-api";
+import { prefs } from "../../prefs";
+import { sidekickSvg } from "./buddies.js";
 import "./style.css";
 
 const theme: ThemeDef = {
   key: "crayon",
   label: "Crayon Box",
   ages: "2-5",
-  blurb: "wax crayons, sunny sky, and Tinker",
+  blurb: "wax crayons, sunny sky, and Tinker the fox",
   order: 0,
   fontFamily: `"Comic Mono", "Comic Sans MS", "Chalkboard SE", sans-serif`,
   fontSize: 26,
@@ -41,30 +43,7 @@ const theme: ThemeDef = {
         <path filter="url(#wax)" d="M30 60c-20 0-20-28 2-28 2-18 30-24 40-8 10-14 36-10 38 8 22-2 26 28 4 28z" fill="#e8f6ff" stroke="#1fb5ff" stroke-width="6" />
       </svg>
 `,
-  sidekick: `
-        <svg viewBox="0 0 140 150">
-          <g filter="url(#wax)" stroke="#3b2a6b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-            <path class="arm l limb" d="M28 92 Q8 80 12 62" fill="none" stroke="#7b5cff" stroke-width="9" />
-            <path class="arm r limb" d="M112 92 Q132 80 128 62" fill="none" stroke="#7b5cff" stroke-width="9" />
-            <path d="M48 18 Q42 4 54 6 M92 18 Q98 4 86 6" fill="none" class="limb" stroke="#7b5cff" stroke-width="7" />
-            <ellipse class="skin" cx="70" cy="85" rx="48" ry="52" fill="#a58bff" />
-            <ellipse class="belly" cx="70" cy="100" rx="28" ry="26" fill="#d9ccff" stroke="none" />
-            <path d="M44 134 v10 M96 134 v10" class="limb" stroke="#7b5cff" stroke-width="10" />
-          </g>
-          <g class="eyes">
-            <ellipse cx="54" cy="70" rx="9" ry="11" fill="#fff" stroke="#3b2a6b" stroke-width="3" />
-            <ellipse cx="86" cy="70" rx="9" ry="11" fill="#fff" stroke="#3b2a6b" stroke-width="3" />
-            <circle class="pupil" cx="55" cy="72" r="5" fill="#3b2a6b" />
-            <circle class="pupil" cx="87" cy="72" r="5" fill="#3b2a6b" />
-          </g>
-          <path class="closed" d="M45 72 q9 6 18 0 M77 72 q9 6 18 0" fill="none" stroke="#3b2a6b" stroke-width="4" stroke-linecap="round" />
-          <circle cx="42" cy="88" r="6" fill="#ff8fb8" opacity=".7" />
-          <circle cx="98" cy="88" r="6" fill="#ff8fb8" opacity=".7" />
-          <path class="mouth smile" d="M58 90 Q70 104 82 90" fill="#ff5c8a" stroke="#3b2a6b" stroke-width="4" stroke-linecap="round" />
-          <ellipse class="mouth ooh" cx="70" cy="96" rx="7" ry="9" fill="#ff5c8a" stroke="#3b2a6b" stroke-width="4" />
-          <path class="mouth hmm" d="M60 96 q5 -4 10 0 t10 0" fill="none" stroke="#3b2a6b" stroke-width="4" stroke-linecap="round" />
-        </svg>
-        <div id="zzz">z<span>z</span><span>z</span></div>
-        <div id="zzz">z<span>z</span><span>z</span></div>`,
+  // the buddy the grown-ups picked (Tinker the fox by default), every mood drawn; style.css shows the current one
+  get sidekick() { return sidekickSvg(prefs.buddy) + `<div id="zzz">z<span>z</span><span>z</span></div>`; },
 };
 export default theme;

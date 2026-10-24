@@ -1,8 +1,9 @@
 /** Grown-up corner: a gate a small kid can't pass (a times-table question), then the settings. */
 import { prefs, savePrefs } from "./prefs";
 import { THEMES } from "./themes";
+import { BUDDIES } from "./themes/crayon/buddies.js";
 
-export type Changed = "fontSize" | "wobble" | "mode" | "theme";
+export type Changed = "fontSize" | "wobble" | "mode" | "theme" | "buddy";
 
 export function openParent(realMode: boolean, changed: (what: Changed) => void, close: () => void) {
   const a = 12 + Math.floor(Math.random() * 8), b = 6 + Math.floor(Math.random() * 4);
@@ -35,6 +36,8 @@ export function openParent(realMode: boolean, changed: (what: Changed) => void, 
         <label><input type="checkbox" name="wobble" ${prefs.wobble ? "checked" : ""}> Crayon-edge text (Crayon Box)</label>
         <label>Look <select name="theme">${THEMES.map((t) =>
           `<option value="${t.key}" ${t.key === prefs.theme ? "selected" : ""}>${t.label} (${t.ages})</option>`).join("")}</select></label>
+        <label>Buddy (Crayon Box) <select name="buddy">${BUDDIES.map((b) =>
+          `<option value="${b.key}" ${b.key === prefs.buddy ? "selected" : ""}>${b.label}</option>`).join("")}</select></label>
         <label>Text size <input type="range" name="fontSize" min="16" max="44" value="${prefs.fontSize}"></label>
         <label>Kid's name <input name="name" value="${prefs.name.replace(/"/g, "&quot;")}" maxlength="16"></label>
         <hr>
@@ -46,8 +49,10 @@ export function openParent(realMode: boolean, changed: (what: Changed) => void, 
           <button data-close>Done</button>
         </div>
       </div>`;
-    const look = card.querySelector<HTMLSelectElement>("select")!;
+    const look = card.querySelector<HTMLSelectElement>("select[name=theme]")!;
     look.addEventListener("change", () => { prefs.theme = look.value; changed("theme"); });
+    const pal = card.querySelector<HTMLSelectElement>("select[name=buddy]")!;
+    pal.addEventListener("change", () => { prefs.buddy = pal.value; savePrefs(); changed("buddy"); });
     card.querySelectorAll<HTMLInputElement>("input").forEach((i) => i.addEventListener("input", () => {
       if (i.type === "checkbox") (prefs as any)[i.name] = i.checked;
       else if (i.name === "fontSize") prefs.fontSize = +i.value;
