@@ -77,7 +77,8 @@ scroll to resize, double-click to remove. They are remembered between sessions.
 ## Grown-up corner
 
 The ⚙️ button (or Cmd/Ctrl+,) asks a times-table question, then opens settings: sounds, read-aloud, text size,
-crayon-edge text, theme, kid's name, and **Open real shell**. The real shell is your login shell started in
+crayon-edge text, theme, buddy, font (the theme's own, or Comic Mono, Illinois Mono, or OpenDyslexic Mono
+for kids who find letters jumbled), kid's name, and **Open real shell**. The real shell is your login shell started in
 `~/TinkerTerm Playground`. It is not a sandbox: it can reach every file you can.
 
 Cmd/Ctrl + = / − / 0 changes the text size.

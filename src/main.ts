@@ -111,11 +111,13 @@ async function setTheme(key: string, fresh = false) {
   document.getElementById("chrome")!.innerHTML = t.chrome;
   document.getElementById("sidekick")!.innerHTML = t.sidekick ?? "";
   // every face before xterm measures its cell, or it measures a fallback font
-  const family = t.fontFamily.split(",")[0];
+  const stack = prefs.font ? `"${prefs.font}", ${t.fontFamily}` : t.fontFamily;
+  const family = stack.split(",")[0];
   await Promise.all(["", "bold "].map((w) => document.fonts.load(`${w}20px ${family}`).catch(() => [])));
-  term.options.fontFamily = t.fontFamily;
+  term.options.fontFamily = stack;
   term.options.theme = t.xterm;
-  term.options.lineHeight = t.lineHeight ?? 1.35;
+  // OpenDyslexic's own line box is 1.75em, a third taller than the rest: tighten so a page keeps its rows
+  term.options.lineHeight = Math.max(1, (t.lineHeight ?? 1.35) * (prefs.font === "OpenDyslexic Mono" ? 0.75 : 1));
   term.options.fontWeight = t.fontWeight ?? "bold";
   term.options.cursorStyle = t.cursorStyle ?? "block";
   term.options.fontSize = prefs.fontSize;
@@ -128,7 +130,7 @@ function grownUp() {
   openParent(mode === "real", (what: Changed) => {
     if (what === "mode") switchMode();
     else if (what === "theme") setTheme(prefs.theme, true);
-    else if (what === "buddy") setTheme(prefs.theme);
+    else if (what === "buddy" || what === "font") setTheme(prefs.theme);
     else applyLook();
   }, () => term.focus());
 }

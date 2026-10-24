@@ -7,6 +7,7 @@ export const prefs = {
   name: "",          // the kid's name, from `name Sam`
   theme: "crayon",
   buddy: "fox",      // Crayon Box sidekick: fox (Tinker) | robot | crayon | crab | dragon
+  font: "",          // terminal font over the theme's own: "" (theme) | Comic Mono | Illinois Mono | OpenDyslexic Mono
 };
 
 try { Object.assign(prefs, JSON.parse(localStorage.getItem("prefs") ?? "{}")); }

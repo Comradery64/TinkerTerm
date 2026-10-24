@@ -8,6 +8,8 @@ Each font's license text sits next to its files.
 | Font | Used by | License | License file |
 | --- | --- | --- | --- |
 | [Comic Mono](https://github.com/dtinth/comic-mono-font) | Crayon Box, UI | MIT | `public/fonts/ComicMono-LICENSE` |
+| [Illinois Mono](https://github.com/MadSimple/illinois-mono) | optional font (grown-up settings) | SIL OFL 1.1 | `public/fonts/OFL-IllinoisMono.txt` |
+| [OpenDyslexic Mono](https://opendyslexic.org) | optional font (grown-up settings) | Bitstream Vera license + CC BY 3.0 | `public/fonts/OpenDyslexicMono-LICENSE` |
 | [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) | Block World, Retro Arcade | SIL OFL 1.1 | `public/themes/*/fonts/PressStart2P-OFL.txt` |
 | [VT323](https://fonts.google.com/specimen/VT323) | Block World, Retro Arcade | SIL OFL 1.1 | `public/themes/*/fonts/VT323-OFL.txt` |
 | [Space Mono](https://github.com/googlefonts/spacemono) | Brick Manual | SIL OFL 1.1 | `public/themes/bricks/fonts/OFL.txt` |

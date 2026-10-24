@@ -8,6 +8,13 @@
 /* Comic Mono: a monospaced Comic Sans, MIT (public/fonts/ComicMono-LICENSE) */
 @font-face { font-family: "Comic Mono"; src: url("/fonts/ComicMono.ttf") format("truetype"); font-weight: 400; }
 @font-face { font-family: "Comic Mono"; src: url("/fonts/ComicMono-Bold.ttf") format("truetype"); font-weight: 700; }
+/* optional terminal fonts (grown-up settings): Illinois Mono, OFL (public/fonts/OFL-IllinoisMono.txt);
+   OpenDyslexic Mono, Bitstream Vera + CC BY 3.0 (public/fonts/OpenDyslexicMono-LICENSE), bold synthesized */
+@font-face { font-family: "Illinois Mono"; src: url("/fonts/IllinoisMono-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "Illinois Mono"; src: url("/fonts/IllinoisMono-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "Illinois Mono"; src: url("/fonts/IllinoisMono-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "Illinois Mono"; src: url("/fonts/IllinoisMono-BoldItalic.ttf") format("truetype"); font-weight: 700; font-style: italic; }
+@font-face { font-family: "OpenDyslexic Mono"; src: url("/fonts/OpenDyslexicMono-Regular.otf") format("opentype"); font-weight: 400; font-style: normal; }
 
 :root {
   --ink: #3b2a6b;
