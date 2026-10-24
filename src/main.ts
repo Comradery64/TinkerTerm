@@ -37,6 +37,8 @@ let mode: "kid" | "real" = "kid";
 const toy = new ToyShell(term, grownUp, (key) => setTheme(key, true));
 let unmount: (() => void) | void;
 let ptyReady = false;
+let gateTimers: number[] = [];   // the real shell's typing gate; cleared on leaving real mode
+const stopGate = () => { gateTimers.forEach(clearTimeout); gateTimers = []; };
 
 async function main() {
   const sticker = new URLSearchParams(location.search).get("sticker");
@@ -142,7 +144,7 @@ function showMute() { document.getElementById("mute")!.textContent = prefs.sound
 async function switchMode() {
   term.reset();
   if (mode === "real") {
-    mode = "kid"; ptyReady = false;
+    mode = "kid"; ptyReady = false; stopGate();
     document.body.classList.remove("real");
     if (TAURI) await invoke("kill");
     toy.start();
@@ -152,9 +154,20 @@ async function switchMode() {
     if (!TAURI) { term.write("(no real shell in browser preview)\r\n"); return; }
     const onData = new Channel<Uint8Array>();
     const dec = new TextDecoder();
-    onData.onmessage = (bytes) => term.write(dec.decode(new Uint8Array(bytes), { stream: true }).replace(/\x1b\[([0-9;]*)m/g, remapSgr));
+    // Typing gate: keys typed before the shell has drawn its prompt would be lost or echoed twice. Ready on the
+    // OSC 133;A prompt mark, or ~1s after output goes quiet (no shell integration here), or 2s after spawn at most.
+    stopGate();
+    const ready = () => { stopGate(); ptyReady = true; };
+    let quiet = 0;
+    gateTimers = [window.setTimeout(ready, 2000)];
+    onData.onmessage = (bytes) => {
+      const text = dec.decode(new Uint8Array(bytes), { stream: true });
+      term.write(text.replace(/\x1b\[([0-9;]*)m/g, remapSgr));
+      if (ptyReady) return;
+      if (text.includes("\x1b]133;A")) return ready();
+      clearTimeout(quiet); quiet = window.setTimeout(ready, 1000); gateTimers = [gateTimers[0], quiet];
+    };
     await invoke("spawn", { cols: term.cols, rows: term.rows, onData });
-    ptyReady = true;
   }
   term.focus();
 }
