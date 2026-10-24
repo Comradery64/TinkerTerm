@@ -29,7 +29,7 @@ Type `theme` in the toy shell, or pick one under the grown-up corner's Look sett
 
 | Theme | Ages | What it is |
 | --- | --- | --- |
-| Crayon Box | 2-5 | wax crayons, sunny sky, and Tinker |
+| Crayon Box | 2-5 | wax crayons, sunny sky, and Tinker the fox (or another buddy) |
 | Toy Workshop | 4-7 | gears, buttons, beads, and Bolt the wind-up robot |
 | Paint Studio | 5-9 | a goofy paint program with stamps, spray cans and dynamite |
 | Block World | 6-9 | build in a pixel world, fill your hotbar with Bloop |
@@ -38,6 +38,19 @@ Type `theme` in the toy shell, or pick one under the grown-up corner's Look sett
 | Mission Control | 9-13 | flight console, live telemetry, CAPCOM on the radio |
 | Retro Arcade | 9-14 | neon cabinet, high scores, and Blip the pixel bot |
 | Pro Studio | 11+ | a sleek dev terminal, like the pros use |
+
+### Buddies
+
+Crayon Box comes with five buddies; pick one under the grown-up corner's Buddy setting. Each has its own pose
+for every mood (idle, happy, thinking, dancing, waving, wow, asleep).
+
+| Buddy | Who they are |
+| --- | --- |
+| Tinker | a fox kit in overalls and too-big goggles who fixes things (the default, and the app icon) |
+| Sprocket | a wind-up tin robot whose face is a tiny terminal screen |
+| Stubby | the shortest crayon in the box, leaving a scribble wherever it goes |
+| Shelly | a hermit crab with a sticker-covered shell |
+| Sniffles | a baby dragon, still in half an eggshell, who sneezes letters instead of fire |
 
 Each theme has its own font, colors, sounds, wording and sidekick. A theme is one folder in `src/themes/`; see
 `src/theme-api.ts` for what it can define.
