@@ -142,6 +142,24 @@ fn traffic_lights(window: tauri::Window, visible: bool, duration: f64) {
     let _ = (window, visible, duration);
 }
 
+/// Show the app icon in the Dock even for a bare debug binary (a bundle gets it from its .icns).
+fn dock_icon(app: &tauri::AppHandle) {
+    #[cfg(target_os = "macos")]
+    {
+        let png: &'static [u8] = include_bytes!("../icons/dock/tinkerterm.png");
+        let _ = app.run_on_main_thread(move || {
+            use objc2::{AllocAnyThread, MainThreadMarker};
+            use objc2_app_kit::{NSApplication, NSImage};
+            let Some(mtm) = MainThreadMarker::new() else { return };
+            let data = objc2_foundation::NSData::with_bytes(png);
+            let Some(img) = NSImage::initWithData(NSImage::alloc(), &data) else { return };
+            unsafe { NSApplication::sharedApplication(mtm).setApplicationIconImage(Some(&img)) };
+        });
+    }
+    #[cfg(not(target_os = "macos"))]
+    let _ = app;
+}
+
 pub fn run() {
     tauri::Builder::default()
         .manage(PtyState::default())
@@ -149,6 +167,7 @@ pub fn run() {
         .setup(|app| {
             // Default menu gives Cmd+C/V/X/A and Quit on macOS.
             app.set_menu(tauri::menu::Menu::default(app.handle())?)?;
+            dock_icon(app.handle());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![spawn, write, resize, kill, speak, stickers_load, stickers_save, traffic_lights, tts::tts, tts::tts_warm])
