@@ -165,7 +165,7 @@ async function switchMode() {
     gateTimers = [window.setTimeout(ready, 2000)];
     onData.onmessage = (bytes) => {
       const text = dec.decode(new Uint8Array(bytes), { stream: true });
-      term.write(text.replace(/\x1b\[([0-9;]*)m/g, remapSgr));
+      term.write(text.replace(/\x1b\[([0-9;:]*)m/g, remapSgr));
       if (ptyReady) return;
       if (text.includes("\x1b]133;A")) return ready();
       clearTimeout(quiet); quiet = window.setTimeout(ready, 1000); gateTimers = [gateTimers[0], quiet];

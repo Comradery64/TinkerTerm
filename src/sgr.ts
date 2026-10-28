@@ -8,8 +8,8 @@
 const HIGHLIGHT_BG = "48;2;200;226;245";
 const MAX_FG_LUMA = 0.42;
 export function remapSgr(seq: string, params: string): string {
-  if (!/(^|;)(7|27|38|40|48)(;|$)/.test(params)) return seq;
-  const p = params.split(";");
+  if (!/(^|;)(7|27|38|40|48)(;|:|$)/.test(params)) return seq;
+  const p = params.split(";").flatMap(colonColor);
   const out: string[] = [];
   for (let i = 0; i < p.length; i++) {
     const n = p[i];
@@ -30,6 +30,18 @@ export function remapSgr(seq: string, params: string): string {
     else out.push(n);
   }
   return `\x1b[${out.join(";")}m`;
+}
+
+/**
+ * ITU colon form of a color (38:2::r:g:b, 38:2:r:g:b, 38:5:n) as the semicolon
+ * params remapSgr reads. Other colon params (underline styles like 4:3) pass as is.
+ */
+function colonColor(n: string): string[] {
+  const c = n.split(":");
+  if (c.length < 3 || !["38", "48", "58"].includes(c[0])) return [n];
+  if (c[1] === "5") return [c[0], "5", c[2]];
+  if (c[1] === "2" && c.length >= 5) return [c[0], "2", ...c.slice(-3)];
+  return [n];
 }
 
 /** 48;2;r;g;b or 48;5;n darker than mid-grey: painted for a dark terminal, invisible intent on paper. */
