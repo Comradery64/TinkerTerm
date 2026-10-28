@@ -1,88 +1,88 @@
 # TinkerTerm
 
-A first terminal for kids aged 3 to 14. Thick crayon lines, a friendly mascot, sounds, and answers read aloud
-by a voice that runs entirely on your computer. Pick a look that fits the kid: nine themes from wax crayons to a
-pro dev terminal.
+A first terminal for kids: type a word, press Enter, and the computer answers back with pictures, sounds and a friendly voice.
 
 ![TinkerTerm, Crayon Box theme](docs/screenshot.png)
 
-Built on [xterm.js](https://xtermjs.org), [Tauri v2](https://tauri.app) and
-[portable-pty](https://crates.io/crates/portable-pty). macOS is the tested platform.
+## Why TinkerTerm
 
-## Run
+A normal terminal is a blank black window that expects you to already know what to type. One wrong command can
+delete files, and the error messages read like a foreign language. That is a rough first meeting.
 
-You need [Node 20+](https://nodejs.org), [pnpm](https://pnpm.io) and [Rust](https://rustup.rs).
+TinkerTerm starts with a pretend shell instead. Kids type simple words, and every answer is a picture, a sound or
+a silly joke. Nothing is ever an error: if a word is not recognized, Tinker the fox suggests something to try.
+The habits are the real ones: type a command, press Enter, read the result, use the up arrow to repeat. When a
+kid is ready for more, a grown-up can switch on the real thing.
+
+- **Safe by design.** Kid mode never touches your files and never starts a program. It is a set of built-in
+  commands written for the app, not a connection to your computer's shell. The only things it saves are
+  the kid's settings (name, look, text size) and where their stickers are.
+- **Grown-ups hold the keys.** Settings and the real shell sit behind a times-table question that a small child
+  will not get past.
+- **Private.** The voice runs on your own computer. Nothing you type or hear is sent anywhere.
+- **Grows with the child.** Nine looks cover roughly ages 2 to 14, from wax crayons to a pro developer terminal.
+
+TinkerTerm is built for macOS, and macOS is the only platform it has been tested on.
+
+## What it can do
+
+- **Nine themes.** Each one has its own colors, font, sounds, wording and sidekick, from Crayon Box (ages 2-5) to
+  Retro Arcade (9-14) and Pro Studio (11+). Type `theme` to see them all, or `theme arcade` to switch.
+- **Buddies.** Tinker the fox, Sprocket the wind-up robot, Stubby the crayon, Shelly the sticker crab and
+  Sniffles the baby dragon. In Crayon Box they react to what you type: waving, thinking, dancing, looking
+  amazed, or falling asleep.
+- **A voice that reads to you.** Answers are spoken aloud by a neural voice that runs on your computer. The
+  younger looks read replies aloud, and `say hello` speaks the word in every look. If the voice model is not
+  installed, the Mac's built-in voice takes over.
+- **A safe toy shell.** Animal and object words show a picture and make a noise. Things to try:
+  - `cat`, `dog`, `dino`, `rocket`, `pizza` and dozens more words: a big picture and a sound
+  - `say hello`: the word in giant letters, spoken aloud
+  - `2 + 3`: math you can count, with apples (also `-`, `x` and `/`)
+  - `count 10`: count along, up to 20
+  - `abc`: the alphabet, sung out
+  - `color pink`: change your crayon
+  - `name Sam`: tell it your name, and it remembers
+  - `party`, `dance`, `joke`, `roll`, `time`, `clear`
+  - `help`: the full list, any time
+- **Stickers.** The star button opens a tray of stickers. Drop them anywhere on the screen, even outside the
+  window. Drag to move, scroll to resize, double-click to peel one off. Or type `sticker cat`. They are
+  still there next time you open the app.
+- **Sounds.** Keys, Enter and answers make little sounds, and every look has its own sound set. One button mutes everything.
+- **Easier reading.** Pick Comic Mono, Illinois Mono or OpenDyslexic Mono for kids who find letters jumbled, and
+  change the text size with Cmd and plus or minus.
+- **A grown-up corner.** Press the gear button (or Cmd+,), answer the times-table question, and you can adjust
+  sounds, read-aloud, text size, look, buddy, font and the kid's name.
+- **A real shell, when you are ready.** The grown-up corner can open your actual login shell, starting in a
+  folder called `TinkerTerm Playground` so experiments stay out of your home folder. This is not a sandbox: it
+  can reach every file you can, so switch it on only when you are sitting nearby. Type `exit` to close the
+  window, or go back to kid mode from the same settings card.
+- **A window that behaves.** Resizable, with rounded corners, and the close buttons stay out of the way
+  until you move the pointer to the top-left corner.
+
+## Build from source
+
+TinkerTerm is a source-only release for now. It is built on [xterm.js](https://xtermjs.org),
+[Tauri v2](https://tauri.app) and [portable-pty](https://crates.io/crates/portable-pty). You need
+[Node 20+](https://nodejs.org), [pnpm](https://pnpm.io) and [Rust](https://rustup.rs).
 
 ```sh
 pnpm install
 node scripts/fetch-voice.mjs    # one-time, ~322 MB voice model (also runs before pnpm dev / pnpm build)
-pnpm tauri dev                  # the app
+pnpm tauri dev                  # run the app
+pnpm tauri build                # make an app bundle
 pnpm dev                        # browser preview at http://localhost:1420 (kid mode only, system voice)
 ```
 
-Without the model the app still works and speaks with the system voice. This is a source-only release: build
-it yourself with `pnpm tauri build`.
+The voice is [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M), run natively in Rust through ONNX Runtime.
+The download goes into `src-tauri/resources/kokoro/` and is not part of this repository. Without it the app
+still works and speaks with the system voice.
 
-## Themes
-
-Type `theme` in the toy shell, or pick one under the grown-up corner's Look setting.
-
-| Theme | Ages | What it is |
-| --- | --- | --- |
-| Crayon Box | 2-5 | wax crayons, sunny sky, and Tinker the fox (or another buddy) |
-| Toy Workshop | 4-7 | gears, buttons, beads, and Bolt the wind-up robot |
-| Paint Studio | 5-9 | a goofy paint program with stamps, spray cans and dynamite |
-| Block World | 6-9 | build in a pixel world, fill your hotbar with Bloop |
-| Brick Manual | 6-9 | a building-instruction booklet: every command is a build step |
-| Deep Sea Lab | 8-12 | pilot a research sub to the bottom of the sea with Dr. Squiggs |
-| Mission Control | 9-13 | flight console, live telemetry, CAPCOM on the radio |
-| Retro Arcade | 9-14 | neon cabinet, high scores, and Blip the pixel bot |
-| Pro Studio | 11+ | a sleek dev terminal, like the pros use |
-
-### Buddies
-
-Crayon Box comes with five buddies; pick one under the grown-up corner's Buddy setting. Each has its own pose
-for every mood (idle, happy, thinking, dancing, waving, wow, asleep).
-
-| Buddy | Who they are |
-| --- | --- |
-| Tinker | a fox kit in overalls and too-big goggles who fixes things (the default, and the app icon) |
-| Sprocket | a wind-up tin robot whose face is a tiny terminal screen |
-| Stubby | the shortest crayon in the box, leaving a scribble wherever it goes |
-| Shelly | a hermit crab with a sticker-covered shell |
-| Sniffles | a baby dragon, still in half an eggshell, who sneezes letters instead of fire |
-
-Each theme has its own font, colors, sounds, wording and sidekick. A theme is one folder in `src/themes/`; see
-`src/theme-api.ts` for what it can define.
-
-## Kid mode (default)
-
-A pretend shell: no files, no processes, nothing to break. Type `help` to see everything. Animal and object words
-(`cat`, `rocket`, `dino`) show a picture and make a noise; `say hello` shows the word in giant letters and speaks
-it; `2 + 3` does math with apples; `count 10`, `color pink`, `name Sam`, `party`, `dance`, `joke`, `roll`, `abc`.
-Unknown words never error: the sidekick suggests something to try.
-
-## Voice
-
-Answers are spoken by [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M), run natively in Rust through ONNX
-Runtime. Nothing is sent over the network, and there is no pre-recorded audio. The model is downloaded once by
-`scripts/fetch-voice.mjs` into `src-tauri/resources/kokoro/` and is not part of this repository. The 🔊 button
-mutes sound and voice.
-
-## Stickers
-
-The ⭐ button opens a tray of stickers. Drop them anywhere on the screen, even outside the window. Drag to move,
-scroll to resize, double-click to remove. They are remembered between sessions.
-
-## Grown-up corner
-
-The ⚙️ button (or Cmd/Ctrl+,) asks a times-table question, then opens settings: sounds, read-aloud, text size,
-crayon-edge text, theme, buddy, font (the theme's own, or Comic Mono, Illinois Mono, or OpenDyslexic Mono
-for kids who find letters jumbled), kid's name, and **Open real shell**. The real shell is your login shell started in
-`~/TinkerTerm Playground`. It is not a sandbox: it can reach every file you can.
-
-Cmd/Ctrl + = / − / 0 changes the text size.
+Each theme is one folder in `src/themes/`; see `src/theme-api.ts` for what a theme can define. The kid-mode
+commands live in `src/toyshell.ts`.
 
 ## License
 
-[MIT](LICENSE). Fonts and the voice model have their own licenses: see [THIRD-PARTY.md](THIRD-PARTY.md).
+MIT. Copyright (c) 2026 Reishi.dev. See [LICENSE](LICENSE).
+
+Fonts and the voice model have their own licenses and credits: see [THIRD-PARTY.md](THIRD-PARTY.md). The voice is
+Kokoro-82M by hexgrad (Apache-2.0).
